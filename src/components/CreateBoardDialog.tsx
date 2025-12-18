@@ -53,11 +53,11 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Preview */}
           <div
-            className="flex h-32 items-center justify-center rounded-lg"
-            style={{
-              background: `linear-gradient(135deg, ${selectedColor} 0%, ${selectedColor}dd 100%)`,
-            }}
-          >
+             className="flex h-32 items-center justify-center rounded-lg"
+             style={{
+               background: `linear-gradient(135deg, ${selectedColor} 0%, ${selectedColor} 100%)`,
+             }}
+           >
             <span className="text-2xl font-bold text-white">
               {title || "Board Title"}
             </span>
