@@ -280,13 +280,10 @@ const BoardView = () => {
     return true;
   };
 
-  const filteredLists =
-    viewMode === "board"
-      ? board.lists.map((list) => ({
-          ...list,
-          cards: list.cards.filter(isCardVisible),
-        }))
-      : board.lists;
+  const filteredLists = board.lists.map((list) => ({
+    ...list,
+    cards: list.cards.filter(isCardVisible),
+  }));
 
   return (
     <div
@@ -559,7 +556,7 @@ const BoardView = () => {
             onDragEnd={handleDragEnd}
           >
             <div className="flex gap-4 pb-6">
-              {board.lists.map((list) => (
+              {filteredLists.map((list) => (
                 <KanbanColumn
                   key={list.id}
                   list={list}
@@ -636,7 +633,7 @@ const BoardView = () => {
 
             const weekDayLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-            const cardsWithList = board.lists.flatMap((list) =>
+            const cardsWithList = filteredLists.flatMap((list) =>
               list.cards.map((card) => ({
                 card,
                 listTitle: list.title,
@@ -749,10 +746,10 @@ const BoardView = () => {
 
         {viewMode === "analytics" && (
           (() => {
-            const allCards = board.lists.flatMap((list) => list.cards);
+            const allCards = filteredLists.flatMap((list) => list.cards);
             const today = new Date();
 
-            const cardsPerList = board.lists.map((list) => ({
+            const cardsPerList = filteredLists.map((list) => ({
               name: list.title,
               value: list.cards.length,
             }));
