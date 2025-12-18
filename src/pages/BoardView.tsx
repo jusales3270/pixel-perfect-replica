@@ -388,6 +388,18 @@ const BoardView = () => {
             }
           }}
           allBoards={store.getBoards()}
+          onMembersMentioned={(members) => {
+            if (!members.length) return;
+
+            const names = members.map((m) => m.name).join(", ");
+            toast({
+              title:
+                members.length === 1
+                  ? "Membro mencionado em um comentário"
+                  : "Membros mencionados em um comentário",
+              description: names,
+            });
+          }}
         />
       </main>
     </div>

@@ -55,6 +55,7 @@ interface CardDetailsDialogProps {
   onAddMemberToCard: (member: Member) => void;
   onRemoveMemberFromCard: (memberId: string) => void;
   allBoards: Board[];
+  onMembersMentioned?: (members: Member[]) => void;
 }
 
 export const CardDetailsDialog = ({
@@ -77,6 +78,7 @@ export const CardDetailsDialog = ({
   onAddMemberToCard,
   onRemoveMemberFromCard,
   allBoards,
+  onMembersMentioned,
 }: CardDetailsDialogProps) => {
   const [title, setTitle] = useState(card?.title || "");
   const [description, setDescription] = useState(card?.description || "");
@@ -133,16 +135,29 @@ export const CardDetailsDialog = ({
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
+    const commentText = newComment.trim();
+
     const newCommentObj: Comment = {
       id: `cm${Date.now()}`,
       userId: "1",
       userName: "Ana Silva",
       userAvatar: "👩",
-      text: newComment.trim(),
+      text: commentText,
       createdAt: format(new Date(), "MMM d h:mm a", { locale: ptBR }),
     };
+
     const updatedComments = [...(card.comments || []), newCommentObj];
     onUpdateCard(card.id, { comments: updatedComments });
+
+    // Detecta menções usando @Nome completo baseado nos membros disponíveis do quadro
+    const mentionedMembers = availableMembers.filter((member) =>
+      commentText.includes(`@${member.name}`)
+    );
+
+    if (mentionedMembers.length && onMembersMentioned) {
+      onMembersMentioned(mentionedMembers);
+    }
+
     setNewComment("");
   };
 
