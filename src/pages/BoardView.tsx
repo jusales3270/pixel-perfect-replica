@@ -93,6 +93,18 @@ const BoardView = () => {
     // Adiciona uma pequena animação antes de mover
     setTimeout(() => {
       store.moveCard(cardId, newListId);
+      const movedCard = board.lists.flatMap((l) => l.cards).find((c) => c.id === cardId);
+
+      if (movedCard) {
+        store.addNotification({
+          type: "card_move",
+          title: "Card movido entre listas",
+          description: `"${movedCard.title}" foi movido para outra lista.`,
+          boardId: board.id,
+          cardId: movedCard.id,
+        });
+      }
+
       toast({
         title: "Card movido!",
         description: "O card foi movido para outra lista.",
@@ -120,14 +132,36 @@ const BoardView = () => {
   };
 
   const handleAddCard = (listId: string, title: string) => {
-    store.addCard(listId, title);
+    const newCard = store.addCard(listId, title);
+    if (newCard) {
+      store.addNotification({
+        type: "card_move",
+        title: "Novo card criado",
+        description: `"${newCard.title}" foi criado na lista.`,
+        boardId: board.id,
+        cardId: newCard.id,
+      });
+    }
+
     toast({
       title: "Cartão criado!",
     });
   };
 
   const handleDeleteCard = (cardId: string) => {
+    const card = board.lists.flatMap((l) => l.cards).find((c) => c.id === cardId);
     store.deleteCard(cardId);
+
+    if (card) {
+      store.addNotification({
+        type: "card_move",
+        title: "Card excluído",
+        description: `"${card.title}" foi removido do quadro.`,
+        boardId: board.id,
+        cardId: card.id,
+      });
+    }
+
     toast({
       title: "Cartão excluído",
     });
@@ -136,6 +170,14 @@ const BoardView = () => {
   const handleDuplicateCard = (cardId: string) => {
     const duplicatedCard = store.duplicateCard(cardId);
     if (duplicatedCard) {
+      store.addNotification({
+        type: "card_move",
+        title: "Card duplicado",
+        description: `"${duplicatedCard.title}" foi criado.`,
+        boardId: board.id,
+        cardId: duplicatedCard.id,
+      });
+
       toast({
         title: "Card duplicado!",
         description: `"${duplicatedCard.title}" foi criado.`,
@@ -162,7 +204,19 @@ const BoardView = () => {
   };
 
   const handleArchiveCard = (cardId: string) => {
+    const card = board.lists.flatMap((l) => l.cards).find((c) => c.id === cardId);
     store.archiveCard(cardId);
+
+    if (card) {
+      store.addNotification({
+        type: "card_move",
+        title: "Card arquivado",
+        description: `"${card.title}" foi arquivado.`,
+        boardId: board.id,
+        cardId: card.id,
+      });
+    }
+
     toast({
       title: "Card arquivado",
     });
@@ -322,6 +376,19 @@ const BoardView = () => {
               store.moveCard(selectedCard.id, targetListId, targetBoardId);
               setIsCardDialogOpen(false);
               
+              const destinationBoard = store.getBoard(targetBoardId);
+
+              store.addNotification({
+                type: "card_move",
+                title: "Card movido",
+                description:
+                  targetBoardId !== board.id && destinationBoard
+                    ? `"${selectedCard.title}" foi movido para o quadro "${destinationBoard.title}".`
+                    : `"${selectedCard.title}" foi movido para outra lista.`,
+                boardId: targetBoardId,
+                cardId: selectedCard.id,
+              });
+              
               // If moving to another board, navigate to it
               if (targetBoardId !== board.id) {
                 toast({
@@ -373,6 +440,14 @@ const BoardView = () => {
           onAddMemberToCard={(member) => {
             if (selectedCard) {
               store.addMemberToCard(selectedCard.id, member);
+              store.addNotification({
+                type: "assignment",
+                title: "Membro atribuído a um card",
+                description: `${member.name} foi adicionado ao cartão "${selectedCard.title}".`,
+                boardId: board.id,
+                cardId: selectedCard.id,
+              });
+
               toast({
                 title: "Membro adicionado!",
                 description: `${member.name} foi adicionado ao cartão.`,
@@ -381,7 +456,19 @@ const BoardView = () => {
           }}
           onRemoveMemberFromCard={(memberId) => {
             if (selectedCard) {
+              const member = board.members.find((m) => m.id === memberId);
               store.removeMemberFromCard(selectedCard.id, memberId);
+
+              if (member) {
+                store.addNotification({
+                  type: "assignment",
+                  title: "Membro removido de um card",
+                  description: `${member.name} foi removido do cartão "${selectedCard.title}".`,
+                  boardId: board.id,
+                  cardId: selectedCard.id,
+                });
+              }
+
               toast({
                 title: "Membro removido!",
               });
@@ -389,9 +476,21 @@ const BoardView = () => {
           }}
           allBoards={store.getBoards()}
           onMembersMentioned={(members) => {
-            if (!members.length) return;
+            if (!members.length || !selectedCard) return;
 
             const names = members.map((m) => m.name).join(", ");
+
+            store.addNotification({
+              type: "mention",
+              title:
+                members.length === 1
+                  ? "Membro mencionado em um comentário"
+                  : "Membros mencionados em um comentário",
+              description: names,
+              boardId: board.id,
+              cardId: selectedCard.id,
+            });
+
             toast({
               title:
                 members.length === 1

@@ -26,6 +26,19 @@ export interface Comment {
   createdAt: string;
 }
 
+export type NotificationType = "mention" | "assignment" | "card_move";
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  description?: string;
+  createdAt: string;
+  read: boolean;
+  boardId?: string;
+  cardId?: string;
+}
+
 export interface Card {
   id: string;
   title: string;
@@ -377,6 +390,7 @@ export const mockBoards: Board[] = [
 // Store state
 class Store {
   private boards: Board[] = mockBoards;
+  private notifications: Notification[] = [];
   private listeners: (() => void)[] = [];
 
   subscribe(listener: () => void) {
@@ -406,6 +420,40 @@ class Store {
     return this.boards.slice().sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
+  }
+
+  getNotifications(): Notification[] {
+    return this.notifications.slice().sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  getUnreadNotificationsCount(): number {
+    return this.notifications.filter((n) => !n.read).length;
+  }
+
+  addNotification(notification: Omit<Notification, "id" | "read" | "createdAt">) {
+    const newNotification: Notification = {
+      id: `n${Date.now()}${Math.random().toString(16).slice(2)}`,
+      createdAt: new Date().toISOString(),
+      read: false,
+      ...notification,
+    };
+
+    this.notifications.unshift(newNotification);
+
+    // Mantém apenas as 50 mais recentes
+    if (this.notifications.length > 50) {
+      this.notifications = this.notifications.slice(0, 50);
+    }
+
+    this.notify();
+  }
+
+  markAllNotificationsAsRead() {
+    if (!this.notifications.length) return;
+    this.notifications = this.notifications.map((n) => ({ ...n, read: true }));
+    this.notify();
   }
 
   addBoard(board: Omit<Board, "id" | "updatedAt">) {
