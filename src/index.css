@@ -8,117 +8,107 @@
 
 @layer base {
   :root {
-    /* Warm sunrise palette */
-    --background: 35 40% 98%;
-    --foreground: 20 25% 15%;
+    /* TaskFlow Design System */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 20 25% 15%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 25% 15%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Warm amber/orange primary */
-    --primary: 30 95% 55%;
+    /* Primary: Laranja vibrante do TaskFlow */
+    --primary: 20 100% 55%;
     --primary-foreground: 0 0% 100%;
 
-    /* Soft peach secondary */
-    --secondary: 25 85% 92%;
-    --secondary-foreground: 20 25% 15%;
+    /* Secondary: Cinza claro */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
 
-    /* Muted warm tones */
-    --muted: 30 40% 94%;
-    --muted-foreground: 20 15% 45%;
+    /* Muted */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Deep coral accent */
-    --accent: 12 88% 60%;
+    /* Accent: Verde teal */
+    --accent: 172 66% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Soft borders */
-    --border: 30 30% 88%;
-    --input: 30 30% 88%;
-    --ring: 30 95% 55%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 20 100% 55%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
     
-    /* Custom tokens for Kanban */
-    --column-bg: 35 50% 96%;
-    --card-shadow: 30 40% 85%;
-    --hover-glow: 30 95% 65%;
+    /* Cores dos boards */
+    --board-orange: 25 95% 55%;
+    --board-purple: 258 90% 66%;
+    --board-green: 172 66% 50%;
+    --board-red: 8 92% 64%;
+    --board-blue: 220 90% 56%;
+    --board-teal: 174 72% 56%;
     
-    /* Gradients */
-    --gradient-bg: linear-gradient(135deg, hsl(35 40% 98%) 0%, hsl(25 45% 96%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(30 40% 99%) 100%);
+    /* Cores das tags */
+    --tag-red: 0 84% 60%;
+    --tag-orange: 25 95% 55%;
+    --tag-yellow: 45 93% 58%;
+    --tag-green: 142 71% 45%;
+    --tag-blue: 220 90% 56%;
+    --tag-purple: 258 90% 66%;
+    --tag-pink: 328 86% 70%;
     
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
+    /* Sidebar */
     --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 20 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 20 100% 55%;
   }
 
   .dark {
-    /* Dark warm theme */
-    --background: 20 30% 8%;
-    --foreground: 35 20% 92%;
+    /* TaskFlow Dark Mode */
+    --background: 0 0% 12%;
+    --foreground: 0 0% 95%;
 
-    --card: 20 25% 12%;
-    --card-foreground: 35 20% 92%;
+    --card: 0 0% 18%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 20 25% 12%;
-    --popover-foreground: 35 20% 92%;
+    --popover: 0 0% 18%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 30 95% 55%;
+    --primary: 20 100% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 20% 18%;
-    --secondary-foreground: 35 20% 92%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 20 20% 16%;
-    --muted-foreground: 30 10% 55%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 12 88% 60%;
+    --accent: 172 66% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 20% 20%;
-    --input: 20 20% 20%;
-    --ring: 30 95% 55%;
+    --border: 0 0% 24%;
+    --input: 0 0% 24%;
+    --ring: 20 100% 55%;
     
-    --column-bg: 20 25% 14%;
-    --card-shadow: 20 30% 6%;
-    --hover-glow: 30 95% 50%;
-    
-    --gradient-bg: linear-gradient(135deg, hsl(20 30% 8%) 0%, hsl(15 35% 10%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(20 25% 12%) 0%, hsl(20 25% 14%) 100%);
-    
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-background: 0 0% 12%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 20 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 24%;
+    --sidebar-ring: 20 100% 55%;
   }
 }
 
