@@ -30,15 +30,24 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
     const completedChecklist = card.checklist?.filter((item) => item.completed).length || 0;
     const totalChecklist = card.checklist?.length || 0;
 
+    // Se está arrastando, mostra apenas o ghost placeholder
+    if (isDragging) {
+      return (
+        <div
+          ref={setNodeRef}
+          style={style}
+          className="ghost-placeholder rounded-lg p-3"
+        >
+          <div className="h-16 w-full"></div>
+        </div>
+      );
+    }
+
     return (
       <div
         ref={setNodeRef}
         style={style}
-        className={`group rounded-lg bg-white p-3 transition-all duration-200 ${
-          isDragging 
-            ? "opacity-40 shadow-2xl scale-105 rotate-2 cursor-grabbing" 
-            : "shadow-sm hover:shadow-md"
-        }`}
+        className="group rounded-lg bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
       >
         {/* Cover Image */}
         {card.coverImage && (
