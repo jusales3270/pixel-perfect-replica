@@ -29,7 +29,7 @@ import {
   Archive,
   Trash2,
 } from "lucide-react";
-import type { Card, ChecklistItem, Comment, Tag, Member, Board } from "@/lib/store";
+import type { Card, ChecklistItem, Comment, Tag, Member, Board, Attachment } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { LabelsManager } from "./LabelsManager";
 import { MembersManager } from "./MembersManager";
@@ -87,7 +87,10 @@ export const CardDetailsDialog = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const attachmentsInputRef = useRef<HTMLInputElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [selectedAttachment, setSelectedAttachment] = useState<Attachment | null>(null);
+  const [isAttachmentPreviewOpen, setIsAttachmentPreviewOpen] = useState(false);
 
   if (!card) return null;
 
@@ -226,7 +229,76 @@ export const CardDetailsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto relative">
+        {isAttachmentPreviewOpen && selectedAttachment && (
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
+            <div className="relative max-w-3xl w-full max-h-[90vh] bg-background rounded-lg p-4 overflow-auto shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold break-words">
+                    {selectedAttachment.name}
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    {Math.round(selectedAttachment.size / 1024)} KB
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <a
+                    href={selectedAttachment.url}
+                    download={selectedAttachment.name}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Button variant="outline" size="sm">
+                      Baixar
+                    </Button>
+                  </a>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setIsAttachmentPreviewOpen(false);
+                      setSelectedAttachment(null);
+                    }}
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center">
+                {selectedAttachment.type.startsWith("image/") && (
+                  <img
+                    src={selectedAttachment.url}
+                    alt={selectedAttachment.name}
+                    className="max-h-[70vh] w-auto rounded-md object-contain"
+                  />
+                )}
+                {selectedAttachment.type.startsWith("video/") && (
+                  <video
+                    src={selectedAttachment.url}
+                    controls
+                    className="max-h-[70vh] w-auto rounded-md"
+                  />
+                )}
+                {selectedAttachment.type.startsWith("audio/") && (
+                  <audio
+                    src={selectedAttachment.url}
+                    controls
+                    className="w-full"
+                  />
+                )}
+                {!selectedAttachment.type.startsWith("image/") &&
+                  !selectedAttachment.type.startsWith("video/") &&
+                  !selectedAttachment.type.startsWith("audio/") && (
+                    <p className="text-sm text-muted-foreground">
+                      Pré-visualização não disponível. Use o botão "Baixar" para abrir o arquivo.
+                    </p>
+                  )}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="flex gap-6">
           {/* Main Content */}
           <div className="flex-1 space-y-6">
@@ -434,6 +506,122 @@ export const CardDetailsDialog = ({
                 >
                   {card.description || "Adicione uma descrição mais detalhada..."}
                 </div>
+              )}
+            </div>
+
+            {/* Attachments */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <Paperclip className="h-5 w-5" />
+                  <h3 className="font-semibold">Anexos</h3>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => attachmentsInputRef.current?.click()}
+                >
+                  Adicionar arquivos
+                </Button>
+              </div>
+              <input
+                ref={attachmentsInputRef}
+                type="file"
+                multiple
+                onChange={(e) => {
+                  const files = e.target.files;
+                  if (!files?.length) return;
+
+                  Array.from(files).forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const base64String = reader.result as string;
+                      const newAttachment: Attachment = {
+                        id: `att${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                        name: file.name,
+                        type: file.type,
+                        url: base64String,
+                        size: file.size,
+                        createdAt: new Date().toISOString(),
+                      };
+                      const updated = [...(card.attachments || []), newAttachment];
+                      onUpdateCard(card.id, { attachments: updated });
+                    };
+                    reader.readAsDataURL(file);
+                  });
+
+                  // reset input to allow re-uploading same file
+                  e.target.value = "";
+                }}
+                className="hidden"
+              />
+
+              {card.attachments && card.attachments.length > 0 ? (
+                <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {card.attachments.map((attachment) => {
+                    const isImage = attachment.type.startsWith("image/");
+                    const isVideo = attachment.type.startsWith("video/");
+                    const isAudio = attachment.type.startsWith("audio/");
+
+                    return (
+                      <button
+                        key={attachment.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAttachment(attachment);
+                          setIsAttachmentPreviewOpen(true);
+                        }}
+                        className="relative flex items-center gap-3 rounded-md border border-border bg-card p-2 text-left hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      >
+                        <div className="h-12 w-12 flex items-center justify-center rounded-md bg-secondary overflow-hidden">
+                          {isImage && (
+                            <img
+                              src={attachment.url}
+                              alt={attachment.name}
+                              className="h-full w-full object-cover"
+                            />
+                          )}
+                          {isVideo && (
+                            <span className="text-xs font-medium">Vídeo</span>
+                          )}
+                          {isAudio && (
+                            <span className="text-xs font-medium">Áudio</span>
+                          )}
+                          {!isImage && !isVideo && !isAudio && (
+                            <span className="text-xs font-medium">Arquivo</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate text-sm font-medium">{attachment.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {Math.round(attachment.size / 1024)} KB
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const updated = (card.attachments || []).filter(
+                              (a) => a.id !== attachment.id
+                            );
+                            onUpdateCard(card.id, { attachments: updated });
+                            if (selectedAttachment?.id === attachment.id) {
+                              setSelectedAttachment(null);
+                              setIsAttachmentPreviewOpen(false);
+                            }
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Nenhum anexo ainda.</p>
               )}
             </div>
 

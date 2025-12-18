@@ -26,6 +26,15 @@ export interface Comment {
   createdAt: string;
 }
 
+export interface Attachment {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  size: number;
+  createdAt: string;
+}
+
 export type NotificationType = "mention" | "assignment" | "card_move";
 
 export interface Notification {
@@ -50,6 +59,7 @@ export interface Card {
   coverImage?: string;
   checklist?: ChecklistItem[];
   comments?: Comment[];
+  attachments?: Attachment[];
   order: number;
 }
 
