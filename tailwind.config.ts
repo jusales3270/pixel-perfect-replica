@@ -57,6 +57,9 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "column-bg": "hsl(var(--column-bg))",
+        "card-shadow": "hsl(var(--card-shadow))",
+        "hover-glow": "hsl(var(--hover-glow))",
       },
       borderRadius: {
         lg: "var(--radius)",
