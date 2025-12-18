@@ -556,25 +556,51 @@ const BoardView = () => {
             ];
 
             return (
-              <section className="space-y-6">
+              <section className="space-y-8">
+                <header className="flex flex-col gap-1 text-white/90">
+                  <h2 className="text-xl font-semibold">Visão geral do quadro</h2>
+                  <p className="text-sm text-white/80">
+                    Acompanhe rapidamente o volume de trabalho, conclusão e risco de atraso.
+                  </p>
+                </header>
+
                 <div className="grid gap-4 md:grid-cols-3">
-                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
-                    <p className="text-xs font-medium text-muted-foreground">Total de cards</p>
-                    <p className="mt-2 text-2xl font-bold">{allCards.length}</p>
+                  <div className="rounded-2xl border border-white/10 bg-white/95/90 p-4 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Total de cards
+                    </p>
+                    <p className="mt-3 text-3xl font-semibold text-foreground">
+                      {allCards.length}
+                    </p>
                   </div>
-                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
-                    <p className="text-xs font-medium text-muted-foreground">Cards concluídos</p>
-                    <p className="mt-2 text-2xl font-bold">{completedCards}</p>
+                  <div className="rounded-2xl border border-emerald-100/80 bg-emerald-50/80 p-4 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
+                      Cards concluídos
+                    </p>
+                    <p className="mt-3 text-3xl font-semibold text-emerald-900">
+                      {completedCards}
+                    </p>
                   </div>
-                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
-                    <p className="text-xs font-medium text-muted-foreground">Cards atrasados</p>
-                    <p className="mt-2 text-2xl font-bold text-destructive">{overdueCards}</p>
+                  <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-medium text-destructive uppercase tracking-wide">
+                      Cards atrasados
+                    </p>
+                    <p className="mt-3 text-3xl font-semibold text-destructive">
+                      {overdueCards}
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
-                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
-                    <h3 className="mb-2 text-sm font-semibold">Cards por lista</h3>
+                  <div className="rounded-2xl border border-white/10 bg-white/95 p-4 shadow-sm backdrop-blur-sm">
+                    <div className="mb-3 flex items-baseline justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">Cards por lista</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Distribuição dos cards em cada coluna do quadro.
+                        </p>
+                      </div>
+                    </div>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <ReBarChart
@@ -597,8 +623,15 @@ const BoardView = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
-                    <h3 className="mb-2 text-sm font-semibold">Status dos cards</h3>
+                  <div className="rounded-2xl border border-white/10 bg-white/95 p-4 shadow-sm backdrop-blur-sm">
+                    <div className="mb-3 flex items-baseline justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">Status dos cards</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Progresso geral considerando conclusão e atrasos.
+                        </p>
+                      </div>
+                    </div>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
