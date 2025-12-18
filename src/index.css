@@ -207,4 +207,23 @@
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
     }
   }
+  
+  /* Ghost Placeholder */
+  .ghost-placeholder {
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 0.5rem;
+    animation: ghostPulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes ghostPulse {
+    0%, 100% {
+      opacity: 0.3;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    50% {
+      opacity: 0.5;
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+  }
 }
