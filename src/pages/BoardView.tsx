@@ -348,6 +348,24 @@ const BoardView = () => {
               store.removeTagFromCard(selectedCard.id, tagId);
             }
           }}
+          availableMembers={board.members}
+          onAddMemberToCard={(member) => {
+            if (selectedCard) {
+              store.addMemberToCard(selectedCard.id, member);
+              toast({
+                title: "Membro adicionado!",
+                description: `${member.name} foi adicionado ao cartão.`,
+              });
+            }
+          }}
+          onRemoveMemberFromCard={(memberId) => {
+            if (selectedCard) {
+              store.removeMemberFromCard(selectedCard.id, memberId);
+              toast({
+                title: "Membro removido!",
+              });
+            }
+          }}
         />
       </main>
     </div>

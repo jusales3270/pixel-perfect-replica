@@ -29,9 +29,10 @@ import {
   Archive,
   Trash2,
 } from "lucide-react";
-import type { Card, ChecklistItem, Comment, Tag } from "@/lib/store";
+import type { Card, ChecklistItem, Comment, Tag, Member } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { LabelsManager } from "./LabelsManager";
+import { MembersManager } from "./MembersManager";
 
 interface CardDetailsDialogProps {
   card: Card | null;
@@ -47,6 +48,9 @@ interface CardDetailsDialogProps {
   onDeleteTag: (tagId: string) => void;
   onAddTagToCard: (tag: Tag) => void;
   onRemoveTagFromCard: (tagId: string) => void;
+  availableMembers: Member[];
+  onAddMemberToCard: (member: Member) => void;
+  onRemoveMemberFromCard: (memberId: string) => void;
 }
 
 export const CardDetailsDialog = ({
@@ -63,6 +67,9 @@ export const CardDetailsDialog = ({
   onDeleteTag,
   onAddTagToCard,
   onRemoveTagFromCard,
+  availableMembers,
+  onAddMemberToCard,
+  onRemoveMemberFromCard,
 }: CardDetailsDialogProps) => {
   const [title, setTitle] = useState(card?.title || "");
   const [description, setDescription] = useState(card?.description || "");
@@ -468,10 +475,22 @@ export const CardDetailsDialog = ({
             <div>
               <h4 className="mb-2 text-xs font-semibold text-muted-foreground">Adicionar ao cartão</h4>
               <div className="space-y-1">
-                <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
-                  <User className="h-4 w-4" />
-                  Membros
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
+                      <User className="h-4 w-4" />
+                      Membros
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3" align="start">
+                    <MembersManager
+                      availableMembers={availableMembers}
+                      selectedMembers={card.members}
+                      onAddMember={onAddMemberToCard}
+                      onRemoveMember={onRemoveMemberFromCard}
+                    />
+                  </PopoverContent>
+                </Popover>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
