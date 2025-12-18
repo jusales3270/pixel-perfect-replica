@@ -31,6 +31,19 @@ import { useToast } from "@/hooks/use-toast";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCard } from "@/components/KanbanCard";
 import { CardDetailsDialog } from "@/components/CardDetailsDialog";
+import {
+  BarChart as ReBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
 const BoardView = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +55,7 @@ const BoardView = () => {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
   const [newListTitle, setNewListTitle] = useState("");
   const [showNewListInput, setShowNewListInput] = useState(false);
-  const [viewMode, setViewMode] = useState<"board" | "calendar">("board");
+  const [viewMode, setViewMode] = useState<"board" | "calendar" | "analytics">("board");
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const sensors = useSensors(
@@ -288,7 +301,13 @@ const BoardView = () => {
               <Calendar className="h-4 w-4" />
               Calendário
             </Button>
-            <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
+            <Button
+              variant="ghost"
+              className={`gap-2 text-white hover:bg-white/20 ${
+                viewMode === "analytics" ? "bg-white/20" : ""
+              }`}
+              onClick={() => setViewMode("analytics")}
+            >
               <BarChart3 className="h-4 w-4" />
               Analytics
             </Button>
@@ -305,7 +324,7 @@ const BoardView = () => {
 
       {/* Conteúdo principal */}
       <main className="flex-1 overflow-x-auto p-6">
-        {viewMode === "board" ? (
+        {viewMode === "board" && (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
@@ -375,7 +394,9 @@ const BoardView = () => {
               ) : null}
             </DragOverlay>
           </DndContext>
-        ) : (
+        )}
+
+        {viewMode === "calendar" && (
           (() => {
             const year = currentMonth.getFullYear();
             const month = currentMonth.getMonth();
@@ -466,7 +487,7 @@ const BoardView = () => {
                           key={dateKey}
                           className="min-h-[90px] rounded-lg border border-border bg-card p-2"
                         >
-                          <div className="mb-1 flex items-center justify-between">
+                          <div className="mb-1 flex items-center justify_between">
                             <span className="text-xs font-semibold">
                               {date.getDate()}
                             </span>
@@ -492,6 +513,114 @@ const BoardView = () => {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+              </section>
+            );
+          })()
+        )}
+
+        {viewMode === "analytics" && (
+          (() => {
+            const allCards = board.lists.flatMap((list) => list.cards);
+            const today = new Date();
+
+            const cardsPerList = board.lists.map((list) => ({
+              name: list.title,
+              value: list.cards.length,
+            }));
+
+            const completedCards = allCards.filter(
+              (card) =>
+                card.checklist &&
+                card.checklist.length > 0 &&
+                card.checklist.every((item) => item.completed)
+            ).length;
+
+            const overdueCards = allCards.filter(
+              (card) => card.dueDate && card.dueDate < today
+            ).length;
+
+            const withoutDueDate = allCards.filter((card) => !card.dueDate).length;
+
+            const statusData = [
+              { name: "Concluídos", value: completedCards },
+              { name: "Atrasados", value: overdueCards },
+              { name: "Sem data", value: withoutDueDate },
+            ];
+
+            const pieColors = [
+              "hsl(142 71% 45%)",
+              "hsl(0 84% 60%)",
+              "hsl(215 20% 65%)",
+            ];
+
+            return (
+              <section className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
+                    <p className="text-xs font-medium text-muted-foreground">Total de cards</p>
+                    <p className="mt-2 text-2xl font-bold">{allCards.length}</p>
+                  </div>
+                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
+                    <p className="text-xs font-medium text-muted-foreground">Cards concluídos</p>
+                    <p className="mt-2 text-2xl font-bold">{completedCards}</p>
+                  </div>
+                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
+                    <p className="text-xs font-medium text-muted-foreground">Cards atrasados</p>
+                    <p className="mt-2 text-2xl font-bold text-destructive">{overdueCards}</p>
+                  </div>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
+                    <h3 className="mb-2 text-sm font-semibold">Cards por lista</h3>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <ReBarChart
+                          data={cardsPerList}
+                          margin={{ top: 10, right: 10, left: 0, bottom: 40 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 16% 90%)" />
+                          <XAxis
+                            dataKey="name"
+                            tick={{ fontSize: 10 }}
+                            interval={0}
+                            angle={-20}
+                            textAnchor="end"
+                          />
+                          <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                          <RechartsTooltip />
+                          <Bar dataKey="value" fill="hsl(221 83% 53%)" radius={[4, 4, 0, 0]} />
+                        </ReBarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-white/90 p-4 shadow-sm">
+                    <h3 className="mb-2 text-sm font-semibold">Status dos cards</h3>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={statusData}
+                            dataKey="value"
+                            nameKey="name"
+                            outerRadius={80}
+                            label
+                          >
+                            {statusData.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={pieColors[index % pieColors.length]}
+                              />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
               </section>
