@@ -93,6 +93,29 @@ class Store {
   private notifications: Notification[] = [];
   private listeners: (() => void)[] = [];
 
+  constructor() {
+    if (typeof window !== "undefined") {
+      try {
+        const storedBoards = window.localStorage.getItem("taskflow-boards");
+        if (storedBoards) {
+          this.boards = JSON.parse(storedBoards) as Board[];
+        }
+      } catch (error) {
+        console.error("Failed to load boards from localStorage", error);
+        this.boards = mockBoards;
+      }
+    }
+  }
+
+  private saveBoards() {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem("taskflow-boards", JSON.stringify(this.boards));
+    } catch (error) {
+      console.error("Failed to save boards to localStorage", error);
+    }
+  }
+
   subscribe(listener: () => void) {
     this.listeners.push(listener);
     return () => {
@@ -101,6 +124,7 @@ class Store {
   }
 
   private notify() {
+    this.saveBoards();
     this.listeners.forEach((listener) => listener());
   }
 
