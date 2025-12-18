@@ -230,7 +230,7 @@ export const CardDetailsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto relative">
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto relative bg-background border rounded-lg shadow-lg p-6">
         {isAttachmentPreviewOpen && selectedAttachment && (
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
             <div className="relative max-w-3xl w-full max-h-[90vh] bg-background rounded-lg p-4 overflow-auto shadow-lg">

@@ -42,7 +42,7 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] w-full bg-background border rounded-lg shadow-lg p-6">
         <DialogHeader>
           <DialogTitle>Criar Novo Quadro</DialogTitle>
           <DialogDescription>
