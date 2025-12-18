@@ -304,37 +304,40 @@ export const CardDetailsDialog = ({
           {/* Main Content */}
           <div className="flex-1 space-y-6">
             {/* Header */}
-            <div className="flex items-start gap-3">
-              <CreditCard className="h-6 w-6 text-foreground mt-1" />
-              <div className="flex-1">
-                {isEditingTitle ? (
-                  <Input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    onBlur={handleSaveTitle}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSaveTitle();
-                      if (e.key === "Escape") {
-                        setTitle(card.title);
-                        setIsEditingTitle(false);
-                      }
-                    }}
-                    autoFocus
-                    className="text-xl font-semibold"
-                  />
-                ) : (
-                  <h2
-                    onClick={() => setIsEditingTitle(true)}
-                    className="text-xl font-semibold cursor-pointer hover:bg-secondary/50 rounded px-2 py-1 -mx-2"
-                  >
-                    {card.title}
-                  </h2>
-                )}
-                <p className="text-sm text-muted-foreground mt-1">
-                  na lista <span className="underline">{listTitle}</span>
-                </p>
+            <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b pb-4 mb-4">
+              <div className="flex items-start gap-3">
+                <CreditCard className="h-6 w-6 text-foreground mt-1" />
+                <div className="flex-1">
+                  {isEditingTitle ? (
+                    <Input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      onBlur={handleSaveTitle}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSaveTitle();
+                        if (e.key === "Escape") {
+                          setTitle(card.title);
+                          setIsEditingTitle(false);
+                        }
+                      }}
+                      autoFocus
+                      className="text-xl font-semibold"
+                    />
+                  ) : (
+                    <h2
+                      onClick={() => setIsEditingTitle(true)}
+                      className="text-xl font-semibold cursor-pointer hover:bg-secondary/50 rounded px-2 py-1 -mx-2"
+                    >
+                      {card.title}
+                    </h2>
+                  )}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    na lista <span className="underline">{listTitle}</span>
+                  </p>
+                </div>
               </div>
             </div>
+
 
             {/* Cover Media (imagem, áudio ou vídeo) */}
             {card.coverImage ? (
