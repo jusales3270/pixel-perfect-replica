@@ -333,18 +333,36 @@ class Store {
 
   moveCard(cardId: string, newListId: string) {
     for (const board of this.boards) {
+      // Encontrar o card na lista atual
+      let sourceList: List | undefined;
+      let cardToMove: Card | undefined;
+      let cardIndex = -1;
+
       for (const list of board.lists) {
-        const cardIndex = list.cards.findIndex((c) => c.id === cardId);
+        cardIndex = list.cards.findIndex((c) => c.id === cardId);
         if (cardIndex !== -1) {
-          const [card] = list.cards.splice(cardIndex, 1);
-          const newList = board.lists.find((l) => l.id === newListId);
-          if (newList) {
-            card.listId = newListId;
-            newList.cards.push(card);
+          sourceList = list;
+          cardToMove = list.cards[cardIndex];
+          break;
+        }
+      }
+
+      if (sourceList && cardToMove) {
+        // Se a lista de destino for diferente da origem
+        if (sourceList.id !== newListId) {
+          // Remover da lista original
+          sourceList.cards.splice(cardIndex, 1);
+          
+          // Adicionar na nova lista
+          const targetList = board.lists.find((l) => l.id === newListId);
+          if (targetList) {
+            cardToMove.listId = newListId;
+            targetList.cards.push(cardToMove);
             this.notify();
             return;
           }
         }
+        return;
       }
     }
   }
