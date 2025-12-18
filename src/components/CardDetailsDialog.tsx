@@ -91,6 +91,8 @@ export const CardDetailsDialog = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [selectedAttachment, setSelectedAttachment] = useState<Attachment | null>(null);
   const [isAttachmentPreviewOpen, setIsAttachmentPreviewOpen] = useState(false);
+  const [editingAttachmentId, setEditingAttachmentId] = useState<string | null>(null);
+  const [editingAttachmentName, setEditingAttachmentName] = useState("");
 
   if (!card) return null;
 
@@ -562,61 +564,127 @@ export const CardDetailsDialog = ({
                     const isImage = attachment.type.startsWith("image/");
                     const isVideo = attachment.type.startsWith("video/");
                     const isAudio = attachment.type.startsWith("audio/");
+                    const isEditing = editingAttachmentId === attachment.id;
 
                     return (
-                      <button
+                      <div
                         key={attachment.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedAttachment(attachment);
-                          setIsAttachmentPreviewOpen(true);
-                        }}
-                        className="relative flex items-center gap-3 rounded-md border border-border bg-card p-2 text-left hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        className="relative flex items-center gap-3 rounded-md border border-border bg-card p-2 text-left hover:border-primary focus-within:ring-2 focus-within:ring-primary/50"
                       >
-                        <div className="h-12 w-12 flex items-center justify-center rounded-md bg-secondary overflow-hidden">
-                          {isImage && (
-                            <img
-                              src={attachment.url}
-                              alt={attachment.name}
-                              className="h-full w-full object-cover"
-                            />
-                          )}
-                          {isVideo && (
-                            <span className="text-xs font-medium">Vídeo</span>
-                          )}
-                          {isAudio && (
-                            <span className="text-xs font-medium">Áudio</span>
-                          )}
-                          {!isImage && !isVideo && !isAudio && (
-                            <span className="text-xs font-medium">Arquivo</span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="truncate text-sm font-medium">{attachment.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {Math.round(attachment.size / 1024)} KB
-                          </p>
-                        </div>
-                        <Button
+                        <button
                           type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="shrink-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const updated = (card.attachments || []).filter(
-                              (a) => a.id !== attachment.id
-                            );
-                            onUpdateCard(card.id, { attachments: updated });
-                            if (selectedAttachment?.id === attachment.id) {
-                              setSelectedAttachment(null);
-                              setIsAttachmentPreviewOpen(false);
-                            }
+                          onClick={() => {
+                            setSelectedAttachment(attachment);
+                            setIsAttachmentPreviewOpen(true);
                           }}
+                          className="flex items-center gap-3 flex-1 min-w-0 text-left"
                         >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </button>
+                          <div className="h-12 w-12 flex items-center justify-center rounded-md bg-secondary overflow-hidden">
+                            {isImage && (
+                              <img
+                                src={attachment.url}
+                                alt={attachment.name}
+                                className="h-full w-full object-cover"
+                              />
+                            )}
+                            {isVideo && (
+                              <span className="text-xs font-medium">Vídeo</span>
+                            )}
+                            {isAudio && (
+                              <span className="text-xs font-medium">Áudio</span>
+                            )}
+                            {!isImage && !isVideo && !isAudio && (
+                              <span className="text-xs font-medium">Arquivo</span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            {isEditing ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  value={editingAttachmentName}
+                                  onChange={(e) => setEditingAttachmentName(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      const trimmed = editingAttachmentName.trim();
+                                      if (!trimmed) return;
+                                      const updated = (card.attachments || []).map((a) =>
+                                        a.id === attachment.id ? { ...a, name: trimmed } : a
+                                      );
+                                      onUpdateCard(card.id, { attachments: updated });
+                                      setEditingAttachmentId(null);
+                                    }
+                                    if (e.key === "Escape") {
+                                      setEditingAttachmentId(null);
+                                    }
+                                  }}
+                                  autoFocus
+                                  className="h-8 text-xs"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => {
+                                    const trimmed = editingAttachmentName.trim();
+                                    if (!trimmed) {
+                                      setEditingAttachmentId(null);
+                                      return;
+                                    }
+                                    const updated = (card.attachments || []).map((a) =>
+                                      a.id === attachment.id ? { ...a, name: trimmed } : a
+                                    );
+                                    onUpdateCard(card.id, { attachments: updated });
+                                    setEditingAttachmentId(null);
+                                  }}
+                                >
+                                  <CheckSquare className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="truncate text-sm font-medium">{attachment.name}</p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {Math.round(attachment.size / 1024)} KB
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </button>
+                        <div className="flex items-center gap-1 ml-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={() => {
+                              setEditingAttachmentId(attachment.id);
+                              setEditingAttachmentName(attachment.name);
+                            }}
+                          >
+                            <AlignLeft className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updated = (card.attachments || []).filter(
+                                (a) => a.id !== attachment.id
+                              );
+                              onUpdateCard(card.id, { attachments: updated });
+                              if (selectedAttachment?.id === attachment.id) {
+                                setSelectedAttachment(null);
+                                setIsAttachmentPreviewOpen(false);
+                              }
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
