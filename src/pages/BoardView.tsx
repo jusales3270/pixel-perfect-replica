@@ -193,7 +193,7 @@ const BoardView = () => {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-4">
+          <div className="flex gap-4 pb-6">
             {board.lists.map((list) => (
               <KanbanColumn
                 key={list.id}
@@ -241,9 +241,9 @@ const BoardView = () => {
             )}
           </div>
 
-          <DragOverlay>
+          <DragOverlay dropAnimation={null}>
             {activeCard ? (
-              <div className="rotate-3 opacity-90">
+              <div className="rotate-3 opacity-90 cursor-grabbing">
                 <KanbanCard card={activeCard} />
               </div>
             ) : null}
