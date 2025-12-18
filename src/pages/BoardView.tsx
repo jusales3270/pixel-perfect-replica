@@ -13,6 +13,7 @@ import {
 } from "@dnd-kit/core";
 import {
   ChevronLeft,
+  ChevronRight,
   Star,
   Users,
   MoreHorizontal,
@@ -41,6 +42,8 @@ const BoardView = () => {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
   const [newListTitle, setNewListTitle] = useState("");
   const [showNewListInput, setShowNewListInput] = useState(false);
+  const [viewMode, setViewMode] = useState<"board" | "calendar">("board");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -265,11 +268,23 @@ const BoardView = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
+            <Button
+              variant="ghost"
+              className={`gap-2 text-white hover:bg-white/20 ${
+                viewMode === "board" ? "bg-white/20" : ""
+              }`}
+              onClick={() => setViewMode("board")}
+            >
               <LayoutGrid className="h-4 w-4" />
               Quadro
             </Button>
-            <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
+            <Button
+              variant="ghost"
+              className={`gap-2 text-white hover:bg-white/20 ${
+                viewMode === "calendar" ? "bg-white/20" : ""
+              }`}
+              onClick={() => setViewMode("calendar")}
+            >
               <Calendar className="h-4 w-4" />
               Calendário
             </Button>
@@ -288,77 +303,201 @@ const BoardView = () => {
         </div>
       </header>
 
-      {/* Kanban Board */}
+      {/* Conteúdo principal */}
       <main className="flex-1 overflow-x-auto p-6">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="flex gap-4 pb-6">
-            {board.lists.map((list) => (
-              <KanbanColumn
-                key={list.id}
-                list={list}
-                onAddCard={handleAddCard}
-                onDeleteCard={handleDeleteCard}
-                onDuplicateCard={handleDuplicateCard}
-                onCardClick={handleCardClick}
-              />
-            ))}
-
-            {/* Add List Button */}
-            {showNewListInput ? (
-              <div className="w-80 shrink-0 rounded-xl bg-white/90 p-4 shadow-lg backdrop-blur-sm">
-                <Input
-                  autoFocus
-                  value={newListTitle}
-                  onChange={(e) => setNewListTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleAddList();
-                    if (e.key === "Escape") setShowNewListInput(false);
-                  }}
-                  placeholder="Digite o nome da lista..."
-                  className="mb-2"
-                />
-                <div className="flex gap-2">
-                  <Button onClick={handleAddList} size="sm">
-                    Adicionar
-                  </Button>
-                  <Button
-                    onClick={() => setShowNewListInput(false)}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowNewListInput(true)}
-                className="flex w-80 shrink-0 items-center gap-2 rounded-xl bg-white/20 p-4 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
-              >
-                <Plus className="h-5 w-5" />
-                <span className="font-medium">Adicionar outra lista</span>
-              </button>
-            )}
-          </div>
-
-          <DragOverlay
-            dropAnimation={{
-              duration: 300,
-              easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-            }}
+        {viewMode === "board" ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
           >
-            {activeCard ? (
-              <div className="rotate-3 scale-105 opacity-95 cursor-grabbing shadow-2xl">
-                <KanbanCard card={activeCard} />
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+            <div className="flex gap-4 pb-6">
+              {board.lists.map((list) => (
+                <KanbanColumn
+                  key={list.id}
+                  list={list}
+                  onAddCard={handleAddCard}
+                  onDeleteCard={handleDeleteCard}
+                  onDuplicateCard={handleDuplicateCard}
+                  onCardClick={handleCardClick}
+                />
+              ))}
+
+              {/* Add List Button */}
+              {showNewListInput ? (
+                <div className="w-80 shrink-0 rounded-xl bg-white/90 p-4 shadow-lg backdrop-blur-sm">
+                  <Input
+                    autoFocus
+                    value={newListTitle}
+                    onChange={(e) => setNewListTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleAddList();
+                      if (e.key === "Escape") setShowNewListInput(false);
+                    }}
+                    placeholder="Digite o nome da lista..."
+                    className="mb-2"
+                  />
+                  <div className="flex gap-2">
+                    <Button onClick={handleAddList} size="sm">
+                      Adicionar
+                    </Button>
+                    <Button
+                      onClick={() => setShowNewListInput(false)}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowNewListInput(true)}
+                  className="flex w-80 shrink-0 items-center gap-2 rounded-xl bg-white/20 p-4 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+                >
+                  <Plus className="h-5 w-5" />
+                  <span className="font-medium">Adicionar outra lista</span>
+                </button>
+              )}
+            </div>
+
+            <DragOverlay
+              dropAnimation={{
+                duration: 300,
+                easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+            >
+              {activeCard ? (
+                <div className="rotate-3 scale-105 opacity-95 cursor-grabbing shadow-2xl">
+                  <KanbanCard card={activeCard} />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        ) : (
+          (() => {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            const endOfMonth = new Date(year, month + 1, 0);
+
+            const days: Date[] = [];
+            for (let day = 1; day <= endOfMonth.getDate(); day++) {
+              days.push(new Date(year, month, day));
+            }
+
+            const weekDayLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+            const cardsWithList = board.lists.flatMap((list) =>
+              list.cards.map((card) => ({
+                card,
+                listTitle: list.title,
+              }))
+            );
+
+            const cardsByDate = new Map<string, { card: Card; listTitle: string }[]>();
+
+            for (const item of cardsWithList) {
+              if (!item.card.dueDate) continue;
+              const dateKey = item.card.dueDate.toISOString().slice(0, 10);
+              const existing = cardsByDate.get(dateKey) || [];
+              existing.push(item);
+              cardsByDate.set(dateKey, existing);
+            }
+
+            const handlePrevMonth = () => {
+              setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+            };
+
+            const handleNextMonth = () => {
+              setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+            };
+
+            return (
+              <section className="space-y-4">
+                <header className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold text-white">
+                      {currentMonth.toLocaleDateString("pt-BR", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </h2>
+                    <p className="text-sm text-white/80">
+                      Cards posicionados pela data de vencimento
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-white hover:bg-white/20"
+                      onClick={handlePrevMonth}
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-white hover:bg-white/20"
+                      onClick={handleNextMonth}
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </header>
+
+                <div className="rounded-xl bg-white/90 p-4 shadow-lg backdrop-blur-sm">
+                  <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-muted-foreground">
+                    {weekDayLabels.map((label) => (
+                      <div key={label} className="py-1">
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-2 grid grid-cols-7 gap-2 text-xs">
+                    {days.map((date) => {
+                      const dateKey = date.toISOString().slice(0, 10);
+                      const itemsForDay = cardsByDate.get(dateKey) || [];
+
+                      return (
+                        <div
+                          key={dateKey}
+                          className="min-h-[90px] rounded-lg border border-border bg-card p-2"
+                        >
+                          <div className="mb-1 flex items-center justify-between">
+                            <span className="text-xs font-semibold">
+                              {date.getDate()}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {date.toLocaleDateString("pt-BR", { weekday: "short" })}
+                            </span>
+                          </div>
+
+                          <div className="space-y-1">
+                            {itemsForDay.map(({ card, listTitle }) => (
+                              <button
+                                key={card.id}
+                                onClick={() => handleCardClick(card)}
+                                className="w-full rounded-md bg-primary/5 px-1.5 py-1 text-left text-[11px] hover:bg-primary/10"
+                              >
+                                <div className="truncate font-medium">{card.title}</div>
+                                <div className="truncate text-[10px] text-muted-foreground">
+                                  {listTitle}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+            );
+          })()
+        )}
 
         <CardDetailsDialog
           card={selectedCard}
@@ -375,7 +514,7 @@ const BoardView = () => {
             if (selectedCard) {
               store.moveCard(selectedCard.id, targetListId, targetBoardId);
               setIsCardDialogOpen(false);
-              
+
               const destinationBoard = store.getBoard(targetBoardId);
 
               store.addNotification({
@@ -388,7 +527,7 @@ const BoardView = () => {
                 boardId: targetBoardId,
                 cardId: selectedCard.id,
               });
-              
+
               // If moving to another board, navigate to it
               if (targetBoardId !== board.id) {
                 toast({
