@@ -130,6 +130,16 @@ const BoardView = () => {
     });
   };
 
+  const handleDuplicateCard = (cardId: string) => {
+    const duplicatedCard = store.duplicateCard(cardId);
+    if (duplicatedCard) {
+      toast({
+        title: "Card duplicado!",
+        description: `"${duplicatedCard.title}" foi criado.`,
+      });
+    }
+  };
+
   return (
     <div
       className="flex min-h-screen flex-col"
@@ -211,6 +221,7 @@ const BoardView = () => {
                 list={list}
                 onAddCard={handleAddCard}
                 onDeleteCard={handleDeleteCard}
+                onDuplicateCard={handleDuplicateCard}
               />
             ))}
 

@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Calendar, CheckSquare, Trash2 } from "lucide-react";
+import { GripVertical, Calendar, CheckSquare, Trash2, Copy } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import type { Card } from "@/lib/store";
@@ -9,10 +9,11 @@ import type { Card } from "@/lib/store";
 interface KanbanCardProps {
   card: Card;
   onDelete?: () => void;
+  onDuplicate?: () => void;
 }
 
 export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
-  ({ card, onDelete }, ref) => {
+  ({ card, onDelete, onDuplicate }, ref) => {
     const {
       attributes,
       listeners,
@@ -83,19 +84,36 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
             <GripVertical className="h-4 w-4" />
           </button>
           <h4 className="flex-1 text-sm font-medium leading-snug">{card.title}</h4>
-          {onDelete && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-            >
-              <Trash2 className="h-3 w-3 text-destructive" />
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {onDuplicate && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDuplicate();
+                }}
+                title="Duplicar card"
+              >
+                <Copy className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+                title="Excluir card"
+              >
+                <Trash2 className="h-3 w-3 text-destructive" />
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Card Footer */}

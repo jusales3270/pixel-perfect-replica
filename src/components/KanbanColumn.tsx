@@ -14,9 +14,10 @@ interface KanbanColumnProps {
   list: List;
   onAddCard: (listId: string, title: string) => void;
   onDeleteCard: (cardId: string) => void;
+  onDuplicateCard: (cardId: string) => void;
 }
 
-export const KanbanColumn = ({ list, onAddCard, onDeleteCard }: KanbanColumnProps) => {
+export const KanbanColumn = ({ list, onAddCard, onDeleteCard, onDuplicateCard }: KanbanColumnProps) => {
   const [showAddCard, setShowAddCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
   const { setNodeRef, isOver } = useDroppable({
@@ -56,7 +57,12 @@ export const KanbanColumn = ({ list, onAddCard, onDeleteCard }: KanbanColumnProp
         >
           <div className="space-y-3">
             {list.cards.map((card) => (
-              <KanbanCard key={card.id} card={card} onDelete={() => onDeleteCard(card.id)} />
+              <KanbanCard 
+                key={card.id} 
+                card={card} 
+                onDelete={() => onDeleteCard(card.id)}
+                onDuplicate={() => onDuplicateCard(card.id)}
+              />
             ))}
 
             {/* Add Card Button */}

@@ -331,6 +331,26 @@ class Store {
     }
   }
 
+  duplicateCard(cardId: string) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const cardIndex = list.cards.findIndex((c) => c.id === cardId);
+        if (cardIndex !== -1) {
+          const originalCard = list.cards[cardIndex];
+          const duplicatedCard: Card = {
+            ...originalCard,
+            id: `c${Date.now()}`,
+            title: `${originalCard.title} (cópia)`,
+            order: list.cards.length,
+          };
+          list.cards.push(duplicatedCard);
+          this.notify();
+          return duplicatedCard;
+        }
+      }
+    }
+  }
+
   moveCard(cardId: string, newListId: string) {
     for (const board of this.boards) {
       // Encontrar o card na lista atual
