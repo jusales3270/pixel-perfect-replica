@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LayoutGrid, Star, Clock, Moon, Sun, Settings, LogOut, Bell } from "lucide-react";
 import { Input } from "./ui/input";
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useTheme } from "next-themes";
-import { store } from "@/lib/store";
+import { store, type Notification } from "@/lib/store";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,10 +23,27 @@ export const Layout = ({ children, searchPlaceholder = "Buscar quadros, cartões
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const [notifications, setNotifications] = useState<Notification[]>(store.getNotifications());
+  const [unreadCount, setUnreadCount] = useState<number>(
+    store.getUnreadNotificationsCount()
+  );
   const favoriteBoards = store.getFavoriteBoards();
   const recentBoards = store.getRecentBoards();
 
   const isActive = (path: string) => location.pathname === path;
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      setNotifications(store.getNotifications());
+      setUnreadCount(store.getUnreadNotificationsCount());
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const handleMarkAllAsRead = () => {
+    store.markAllNotificationsAsRead();
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -168,10 +185,57 @@ export const Layout = ({ children, searchPlaceholder = "Buscar quadros, cartões
               )}
             </Button>
 
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary"></span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <div className="flex items-center justify-between px-2 py-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    Notificações
+                  </p>
+                  {notifications.length > 0 && (
+                    <button
+                      className="text-xs font-medium text-primary hover:underline"
+                      onClick={handleMarkAllAsRead}
+                    >
+                      Marcar todas como lidas
+                    </button>
+                  )}
+                </div>
+                <DropdownMenuSeparator />
+                <div className="max-h-80 overflow-y-auto py-1">
+                  {notifications.length === 0 ? (
+                    <p className="px-3 py-6 text-center text-xs text-muted-foreground">
+                      Nenhuma notificação recente
+                    </p>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`px-3 py-2 text-xs ${
+                          notification.read ? "bg-background" : "bg-accent/40"
+                        }`}
+                      >
+                        <p className="font-medium">{notification.title}</p>
+                        {notification.description && (
+                          <p className="mt-0.5 text-muted-foreground">
+                            {notification.description}
+                          </p>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
