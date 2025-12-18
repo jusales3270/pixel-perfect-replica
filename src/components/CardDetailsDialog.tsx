@@ -85,8 +85,7 @@ export const CardDetailsDialog = ({
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [newComment, setNewComment] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!card) return null;
@@ -101,6 +100,8 @@ export const CardDetailsDialog = ({
     }
     setIsEditingTitle(false);
   };
+
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   const handleSaveDescription = () => {
     if (description !== card.description) {
@@ -165,12 +166,24 @@ export const CardDetailsDialog = ({
     onUpdateCard(card.id, { dueDate: date });
   };
 
-  const handleImageUpload = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
+  const getCoverType = () => {
+    if (!card.coverImage) return "image";
+    if (card.coverImage.startsWith("data:video")) return "video";
+    if (card.coverImage.startsWith("data:audio")) return "audio";
+    return "image";
+  };
+
+  const coverType = getCoverType();
+
+  const handleFileUpload = async (file: File) => {
+    if (
+      !file.type.startsWith("image/") &&
+      !file.type.startsWith("audio/") &&
+      !file.type.startsWith("video/")
+    ) {
       return;
     }
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
@@ -179,30 +192,30 @@ export const CardDetailsDialog = ({
     reader.readAsDataURL(file);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleImageUpload(file);
+      handleFileUpload(file);
     }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDraggingImage(true);
+    setIsDraggingFile(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDraggingImage(false);
+    setIsDraggingFile(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDraggingImage(false);
-    
+    setIsDraggingFile(false);
+
     const file = e.dataTransfer.files[0];
     if (file) {
-      handleImageUpload(file);
+      handleFileUpload(file);
     }
   };
 
@@ -249,14 +262,28 @@ export const CardDetailsDialog = ({
               </div>
             </div>
 
-            {/* Cover Image Upload Area */}
+            {/* Cover Media (imagem, áudio ou vídeo) */}
             {card.coverImage ? (
               <div className="relative group">
-                <img
-                  src={card.coverImage}
-                  alt="Capa do card"
-                  className="h-48 w-full rounded-lg object-cover"
-                />
+                {coverType === "image" && (
+                  <img
+                    src={card.coverImage}
+                    alt="Capa do card"
+                    className="h-48 w-full rounded-lg object-cover"
+                  />
+                )}
+                {coverType === "video" && (
+                  <video
+                    src={card.coverImage}
+                    className="h-48 w-full rounded-lg object-cover"
+                    controls
+                  />
+                )}
+                {coverType === "audio" && (
+                  <div className="h-24 w-full rounded-lg bg-secondary flex items-center justify-center px-4">
+                    <audio src={card.coverImage} controls className="w-full" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                   <Button
                     onClick={() => fileInputRef.current?.click()}
@@ -281,22 +308,22 @@ export const CardDetailsDialog = ({
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                  isDraggingImage
+                  isDraggingFile
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary hover:bg-secondary/50"
                 }`}
               >
                 <Paperclip className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
-                  Clique ou arraste uma imagem para adicionar capa
+                  Clique ou arraste uma imagem, áudio ou vídeo para adicionar capa
                 </p>
               </div>
             )}
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
-              onChange={handleImageChange}
+              accept="image/*,audio/*,video/*"
+              onChange={handleFileChange}
               className="hidden"
             />
 
