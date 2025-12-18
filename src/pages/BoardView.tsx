@@ -8,6 +8,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  closestCorners,
+  DragOverEvent,
 } from "@dnd-kit/core";
 import {
   ChevronLeft,
@@ -85,7 +87,15 @@ const BoardView = () => {
     const cardId = active.id as string;
     const newListId = over.id as string;
 
-    store.moveCard(cardId, newListId);
+    // Adiciona uma pequena animação antes de mover
+    setTimeout(() => {
+      store.moveCard(cardId, newListId);
+      toast({
+        title: "Card movido!",
+        description: "O card foi movido para outra lista.",
+        duration: 2000,
+      });
+    }, 100);
   };
 
   const handleToggleFavorite = () => {
@@ -190,6 +200,7 @@ const BoardView = () => {
       <main className="flex-1 overflow-x-auto p-6">
         <DndContext
           sensors={sensors}
+          collisionDetection={closestCorners}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
@@ -241,9 +252,14 @@ const BoardView = () => {
             )}
           </div>
 
-          <DragOverlay dropAnimation={null}>
+          <DragOverlay
+            dropAnimation={{
+              duration: 300,
+              easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
             {activeCard ? (
-              <div className="rotate-3 opacity-90 cursor-grabbing">
+              <div className="rotate-3 scale-105 opacity-95 cursor-grabbing shadow-2xl">
                 <KanbanCard card={activeCard} />
               </div>
             ) : null}

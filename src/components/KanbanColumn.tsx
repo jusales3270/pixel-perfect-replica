@@ -48,8 +48,10 @@ export const KanbanColumn = ({ list, onAddCard, onDeleteCard }: KanbanColumnProp
       <SortableContext items={list.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
         <div
           ref={setNodeRef}
-          className={`min-h-[200px] rounded-xl bg-black/10 p-3 backdrop-blur-sm transition-colors ${
-            isOver ? "bg-black/20 ring-2 ring-white/30" : ""
+          className={`min-h-[200px] rounded-xl p-3 backdrop-blur-sm transition-all duration-300 ${
+            isOver 
+              ? "bg-white/25 ring-2 ring-white/50 scale-[1.02]" 
+              : "bg-black/10"
           }`}
         >
           <div className="space-y-3">

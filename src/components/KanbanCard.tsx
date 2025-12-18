@@ -24,7 +24,7 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
 
     const style = {
       transform: CSS.Transform.toString(transform),
-      transition,
+      transition: transition || "transform 200ms cubic-bezier(0.25, 0.1, 0.25, 1)",
     };
 
     const completedChecklist = card.checklist?.filter((item) => item.completed).length || 0;
@@ -34,8 +34,10 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
       <div
         ref={setNodeRef}
         style={style}
-        className={`group rounded-lg bg-white p-3 shadow-sm transition-shadow hover:shadow-md ${
-          isDragging ? "opacity-50 cursor-grabbing" : ""
+        className={`group rounded-lg bg-white p-3 transition-all duration-200 ${
+          isDragging 
+            ? "opacity-40 shadow-2xl scale-105 rotate-2 cursor-grabbing" 
+            : "shadow-sm hover:shadow-md"
         }`}
       >
         {/* Cover Image */}
