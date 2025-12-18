@@ -87,6 +87,7 @@ export const CardDetailsDialog = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   if (!card) return null;
 
@@ -274,6 +275,7 @@ export const CardDetailsDialog = ({
                 )}
                 {coverType === "video" && (
                   <video
+                    ref={videoRef}
                     src={card.coverImage}
                     className="h-48 w-full rounded-lg object-cover"
                     controls
@@ -285,6 +287,28 @@ export const CardDetailsDialog = ({
                   </div>
                 )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                  {coverType === "video" && (
+                    <Button
+                      onClick={() => {
+                        if (!videoRef.current) return;
+                        const video = videoRef.current;
+                        const canvas = document.createElement("canvas");
+                        const width = video.videoWidth || 640;
+                        const height = video.videoHeight || 360;
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        if (!ctx) return;
+                        ctx.drawImage(video, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL("image/png");
+                        onUpdateCard(card.id, { coverImage: dataUrl });
+                      }}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      Usar frame atual como capa
+                    </Button>
+                  )}
                   <Button
                     onClick={() => fileInputRef.current?.click()}
                     variant="secondary"
