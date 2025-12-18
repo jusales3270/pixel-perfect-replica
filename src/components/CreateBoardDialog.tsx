@@ -44,9 +44,9 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Board</DialogTitle>
+          <DialogTitle>Criar Novo Quadro</DialogTitle>
           <DialogDescription>
-            Give your board a title and choose a background color.
+            Dê um título ao seu quadro e escolha uma cor de fundo.
           </DialogDescription>
         </DialogHeader>
 
@@ -65,19 +65,19 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
 
           {/* Title Input */}
           <div className="space-y-2">
-            <Label htmlFor="title">Board Title</Label>
+            <Label htmlFor="title">Título do Quadro</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter board title..."
+              placeholder="Digite o título do quadro..."
               className="border-primary/50 focus-visible:ring-primary"
             />
           </div>
 
           {/* Color Selection */}
           <div className="space-y-2">
-            <Label>Background</Label>
+            <Label>Fundo</Label>
             <div className="flex gap-2">
               {boardColors.map((color) => (
                 <button
@@ -99,10 +99,10 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
           {/* Actions */}
           <div className="flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" disabled={!title.trim()}>
-              Create Board
+              Criar Quadro
             </Button>
           </div>
         </form>
