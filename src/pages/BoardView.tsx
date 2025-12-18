@@ -29,6 +29,7 @@ import { store, Card } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCard } from "@/components/KanbanCard";
+import { CardDetailsDialog } from "@/components/CardDetailsDialog";
 
 const BoardView = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +37,8 @@ const BoardView = () => {
   const { toast } = useToast();
   const [board, setBoard] = useState(id ? store.getBoard(id) : undefined);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
   const [newListTitle, setNewListTitle] = useState("");
   const [showNewListInput, setShowNewListInput] = useState(false);
 
@@ -140,6 +143,31 @@ const BoardView = () => {
     }
   };
 
+  const handleCardClick = (card: Card) => {
+    setSelectedCard(card);
+    setIsCardDialogOpen(true);
+  };
+
+  const handleUpdateCard = (cardId: string, updates: Partial<Card>) => {
+    store.updateCard(cardId, updates);
+    // Update selected card to reflect changes
+    if (selectedCard?.id === cardId) {
+      const updatedCard = board?.lists
+        .flatMap((list) => list.cards)
+        .find((c) => c.id === cardId);
+      if (updatedCard) {
+        setSelectedCard(updatedCard);
+      }
+    }
+  };
+
+  const handleArchiveCard = (cardId: string) => {
+    store.archiveCard(cardId);
+    toast({
+      title: "Card arquivado",
+    });
+  };
+
   return (
     <div
       className="flex min-h-screen flex-col"
@@ -222,6 +250,7 @@ const BoardView = () => {
                 onAddCard={handleAddCard}
                 onDeleteCard={handleDeleteCard}
                 onDuplicateCard={handleDuplicateCard}
+                onCardClick={handleCardClick}
               />
             ))}
 
@@ -276,6 +305,18 @@ const BoardView = () => {
             ) : null}
           </DragOverlay>
         </DndContext>
+
+        <CardDetailsDialog
+          card={selectedCard}
+          listTitle={
+            board.lists.find((list) => list.id === selectedCard?.listId)?.title || ""
+          }
+          open={isCardDialogOpen}
+          onOpenChange={setIsCardDialogOpen}
+          onUpdateCard={handleUpdateCard}
+          onDeleteCard={handleDeleteCard}
+          onArchiveCard={handleArchiveCard}
+        />
       </main>
     </div>
   );
