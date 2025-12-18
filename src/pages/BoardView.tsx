@@ -311,11 +311,32 @@ const BoardView = () => {
           listTitle={
             board.lists.find((list) => list.id === selectedCard?.listId)?.title || ""
           }
+          boardId={board.id}
           open={isCardDialogOpen}
           onOpenChange={setIsCardDialogOpen}
           onUpdateCard={handleUpdateCard}
           onDeleteCard={handleDeleteCard}
           onArchiveCard={handleArchiveCard}
+          onMoveCard={(targetBoardId, targetListId) => {
+            if (selectedCard) {
+              store.moveCard(selectedCard.id, targetListId, targetBoardId);
+              setIsCardDialogOpen(false);
+              
+              // If moving to another board, navigate to it
+              if (targetBoardId !== board.id) {
+                toast({
+                  title: "Card movido!",
+                  description: "O card foi movido para outro quadro.",
+                });
+                navigate(`/board/${targetBoardId}`);
+              } else {
+                toast({
+                  title: "Card movido!",
+                  description: "O card foi movido para outra lista.",
+                });
+              }
+            }
+          }}
           availableTags={board.availableTags}
           onCreateTag={(name, color) => {
             const newTag = store.addBoardTag(board.id, name, color);
@@ -366,6 +387,7 @@ const BoardView = () => {
               });
             }
           }}
+          allBoards={store.getBoards()}
         />
       </main>
     </div>

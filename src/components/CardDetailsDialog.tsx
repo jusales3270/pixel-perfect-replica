@@ -29,19 +29,22 @@ import {
   Archive,
   Trash2,
 } from "lucide-react";
-import type { Card, ChecklistItem, Comment, Tag, Member } from "@/lib/store";
+import type { Card, ChecklistItem, Comment, Tag, Member, Board } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { LabelsManager } from "./LabelsManager";
 import { MembersManager } from "./MembersManager";
+import { MoveCardDialog } from "./MoveCardDialog";
 
 interface CardDetailsDialogProps {
   card: Card | null;
   listTitle: string;
+  boardId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdateCard: (cardId: string, updates: Partial<Card>) => void;
   onDeleteCard: (cardId: string) => void;
   onArchiveCard: (cardId: string) => void;
+  onMoveCard: (targetBoardId: string, targetListId: string) => void;
   availableTags: Tag[];
   onCreateTag: (name: string, color: string) => void;
   onUpdateTag: (tagId: string, name: string, color: string) => void;
@@ -51,16 +54,19 @@ interface CardDetailsDialogProps {
   availableMembers: Member[];
   onAddMemberToCard: (member: Member) => void;
   onRemoveMemberFromCard: (memberId: string) => void;
+  allBoards: Board[];
 }
 
 export const CardDetailsDialog = ({
   card,
   listTitle,
+  boardId,
   open,
   onOpenChange,
   onUpdateCard,
   onDeleteCard,
   onArchiveCard,
+  onMoveCard,
   availableTags,
   onCreateTag,
   onUpdateTag,
@@ -70,6 +76,7 @@ export const CardDetailsDialog = ({
   availableMembers,
   onAddMemberToCard,
   onRemoveMemberFromCard,
+  allBoards,
 }: CardDetailsDialogProps) => {
   const [title, setTitle] = useState(card?.title || "");
   const [description, setDescription] = useState(card?.description || "");
@@ -542,10 +549,23 @@ export const CardDetailsDialog = ({
             <div>
               <h4 className="mb-2 text-xs font-semibold text-muted-foreground">Ações</h4>
               <div className="space-y-1">
-                <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
-                  <ArrowRight className="h-4 w-4" />
-                  Mover
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
+                      <ArrowRight className="h-4 w-4" />
+                      Mover
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3" align="start">
+                    <MoveCardDialog
+                      currentBoardId={boardId}
+                      currentListId={card.listId}
+                      allBoards={allBoards}
+                      onMove={onMoveCard}
+                      onClose={() => {}}
+                    />
+                  </PopoverContent>
+                </Popover>
                 <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
                   <Copy className="h-4 w-4" />
                   Copiar
