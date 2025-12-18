@@ -17,6 +17,15 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
+export interface Comment {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  text: string;
+  createdAt: string;
+}
+
 export interface Card {
   id: string;
   title: string;
@@ -24,9 +33,10 @@ export interface Card {
   listId: string;
   tags: Tag[];
   members: Member[];
-  dueDate?: string;
+  dueDate?: Date;
   coverImage?: string;
   checklist?: ChecklistItem[];
+  comments?: Comment[];
   order: number;
 }
 
@@ -67,24 +77,137 @@ export const mockBoards: Board[] = [
     lists: [
       {
         id: "l1",
-        title: "A Fazer",
+        title: "Backlog",
         boardId: "1",
         order: 0,
-        cards: [],
+        cards: [
+          {
+            id: "c1",
+            title: "Market Research Analysis",
+            description: "Conduct comprehensive market research for the new product line. Analyze competitor strategies and identify key opportunities.",
+            listId: "l1",
+            tags: [
+              { id: "t1", name: "Research", color: "hsl(172 66% 50%)" },
+              { id: "t2", name: "Documentation", color: "hsl(45 93% 58%)" },
+            ],
+            members: [
+              { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
+              { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
+            ],
+            dueDate: new Date("2024-12-19"),
+            checklist: [
+              { id: "ch1", text: "Gather competitor data", completed: true },
+              { id: "ch2", text: "Analyze market trends", completed: true },
+              { id: "ch3", text: "Create report", completed: false },
+            ],
+            comments: [
+              {
+                id: "cm1",
+                userId: "1",
+                userName: "Ana Silva",
+                userAvatar: "👩",
+                text: "Started initial research on competitor websites",
+                createdAt: "Dec 9 9:00 PM",
+              },
+            ],
+            order: 0,
+          },
+          {
+            id: "c2",
+            title: "Define brand guidelines",
+            listId: "l1",
+            tags: [],
+            members: [{ id: "3", name: "Pedro Costa", email: "pedro@taskflow.com", avatar: "👨‍🎨" }],
+            order: 1,
+          },
+        ],
       },
       {
         id: "l2",
-        title: "Em Progresso",
+        title: "In Progress",
         boardId: "1",
         order: 1,
-        cards: [],
+        cards: [
+          {
+            id: "c3",
+            title: "Landing Page Design",
+            coverImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop",
+            description: "Create modern and responsive landing page design for the new product.",
+            listId: "l2",
+            tags: [
+              { id: "t3", name: "Design", color: "hsl(258 90% 66%)" },
+              { id: "t4", name: "Frontend", color: "hsl(220 90% 56%)" },
+            ],
+            members: [
+              { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
+              { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
+              { id: "4", name: "Ana Lima", email: "ana@taskflow.com", avatar: "👩‍💻" },
+            ],
+            dueDate: new Date("2024-12-17"),
+            checklist: [
+              { id: "ch4", text: "Wireframes", completed: true },
+              { id: "ch5", text: "High-fidelity mockups", completed: false },
+              { id: "ch6", text: "Responsive design", completed: false },
+              { id: "ch7", text: "Developer handoff", completed: false },
+            ],
+            order: 0,
+          },
+          {
+            id: "c4",
+            title: "API Integration Setup",
+            listId: "l2",
+            tags: [
+              { id: "t5", name: "Backend", color: "hsl(142 71% 45%)" },
+              { id: "t6", name: "API", color: "hsl(220 90% 56%)" },
+            ],
+            members: [{ id: "4", name: "Ana Lima", email: "ana@taskflow.com", avatar: "👩‍💻" }],
+            order: 1,
+          },
+        ],
       },
       {
         id: "l3",
-        title: "Concluído",
+        title: "Review",
         boardId: "1",
         order: 2,
-        cards: [],
+        cards: [
+          {
+            id: "c5",
+            title: "Email Campaign Templates",
+            listId: "l3",
+            tags: [
+              { id: "t7", name: "Marketing", color: "hsl(328 86% 70%)" },
+            ],
+            members: [{ id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" }],
+            order: 0,
+          },
+        ],
+      },
+      {
+        id: "l4",
+        title: "Done",
+        boardId: "1",
+        order: 3,
+        cards: [
+          {
+            id: "c6",
+            title: "Project Kickoff Meeting",
+            listId: "l4",
+            tags: [],
+            members: [
+              { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
+              { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
+              { id: "3", name: "Pedro Costa", email: "pedro@taskflow.com", avatar: "👨‍🎨" },
+              { id: "4", name: "Ana Lima", email: "ana@taskflow.com", avatar: "👩‍💻" },
+            ],
+            checklist: [
+              { id: "ch8", text: "Send meeting notes", completed: true },
+              { id: "ch9", text: "Update project roadmap", completed: true },
+              { id: "ch10", text: "Assign initial tasks", completed: true },
+            ],
+            order: 0,
+          },
+        ],
       },
     ],
   },
@@ -178,7 +301,7 @@ export const mockBoards: Board[] = [
               { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
               { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
             ],
-            dueDate: "Dec 18",
+            dueDate: new Date("2024-12-18"),
             checklist: [
               { id: "ch1", text: "Design mockup", completed: true },
               { id: "ch2", text: "API integration", completed: false },
@@ -195,7 +318,7 @@ export const mockBoards: Board[] = [
               { id: "t6", name: "Critical", color: "hsl(25 95% 55%)" },
             ],
             members: [{ id: "4", name: "Ana Lima", email: "ana@taskflow.com", avatar: "👩‍💻" }],
-            dueDate: "Dec 16",
+            dueDate: new Date("2024-12-16"),
             order: 1,
           },
         ],
@@ -325,6 +448,7 @@ class Store {
           order: list.cards.length,
         };
         list.cards.push(newCard);
+        board.updatedAt = "just now";
         this.notify();
         return newCard;
       }
@@ -344,11 +468,31 @@ class Store {
             order: list.cards.length,
           };
           list.cards.push(duplicatedCard);
+          board.updatedAt = "just now";
           this.notify();
           return duplicatedCard;
         }
       }
     }
+  }
+
+  updateCard(cardId: string, updates: Partial<Card>) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const cardIndex = list.cards.findIndex((c) => c.id === cardId);
+        if (cardIndex !== -1) {
+          list.cards[cardIndex] = { ...list.cards[cardIndex], ...updates };
+          board.updatedAt = "just now";
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
+
+  archiveCard(cardId: string) {
+    // For now, just delete - could implement archive functionality later
+    this.deleteCard(cardId);
   }
 
   moveCard(cardId: string, newListId: string) {
