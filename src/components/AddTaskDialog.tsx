@@ -54,31 +54,31 @@ export const AddTaskDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Add New Task</DialogTitle>
+          <DialogTitle className="text-2xl">Adicionar Nova Tarefa</DialogTitle>
           <DialogDescription>
-            Create a new task for your project board
+            Crie uma nova tarefa para o seu quadro de projetos
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title">Task Title</Label>
+            <Label htmlFor="title">Título da Tarefa</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task title"
+              placeholder="Digite o título da tarefa"
               className="transition-smooth"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">Descrição (Opcional)</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add more details about the task"
+              placeholder="Adicione mais detalhes sobre a tarefa"
               className="min-h-[100px] transition-smooth"
             />
           </div>
@@ -90,9 +90,9 @@ export const AddTaskDialog = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todo">To Do</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
+                <SelectItem value="todo">A Fazer</SelectItem>
+                <SelectItem value="in-progress">Em Progresso</SelectItem>
+                <SelectItem value="done">Concluído</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -103,10 +103,10 @@ export const AddTaskDialog = ({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" disabled={!title.trim()}>
-              Add Task
+              Adicionar Tarefa
             </Button>
           </div>
         </form>

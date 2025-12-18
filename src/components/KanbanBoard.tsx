@@ -24,34 +24,34 @@ export interface Task {
 const initialTasks: Task[] = [
   {
     id: "1",
-    title: "Design new landing page",
-    description: "Create mockups and wireframes for the new homepage",
+    title: "Design da nova landing page",
+    description: "Criar mockups e wireframes para a nova página inicial",
     status: "todo",
   },
   {
     id: "2",
-    title: "Implement authentication",
-    description: "Add JWT-based authentication system",
+    title: "Implementar autenticação",
+    description: "Adicionar sistema de autenticação baseado em JWT",
     status: "in-progress",
   },
   {
     id: "3",
-    title: "Write API documentation",
-    description: "Document all REST endpoints",
+    title: "Escrever documentação da API",
+    description: "Documentar todos os endpoints REST",
     status: "in-progress",
   },
   {
     id: "4",
-    title: "Set up CI/CD pipeline",
-    description: "Configure GitHub Actions for automated deployments",
+    title: "Configurar pipeline CI/CD",
+    description: "Configurar GitHub Actions para deploys automatizados",
     status: "done",
   },
 ];
 
 const columns = [
-  { id: "todo", title: "To Do", color: "hsl(30 95% 55%)" },
-  { id: "in-progress", title: "In Progress", color: "hsl(12 88% 60%)" },
-  { id: "done", title: "Done", color: "hsl(140 70% 50%)" },
+  { id: "todo", title: "A Fazer", color: "hsl(30 95% 55%)" },
+  { id: "in-progress", title: "Em Progresso", color: "hsl(12 88% 60%)" },
+  { id: "done", title: "Concluído", color: "hsl(140 70% 50%)" },
 ];
 
 export const KanbanBoard = () => {
@@ -108,21 +108,21 @@ export const KanbanBoard = () => {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-              Project Board
-            </h1>
-            <p className="mt-2 text-lg text-muted-foreground">
-              Organize and track your tasks
-            </p>
-          </div>
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+            Quadro de Projetos
+          </h1>
+          <p className="mt-2 text-lg text-muted-foreground">
+            Organize e acompanhe suas tarefas
+          </p>
+        </div>
           <Button
             onClick={() => setIsAddDialogOpen(true)}
             size="lg"
             className="gap-2 shadow-lg glow-on-hover"
           >
             <Plus className="h-5 w-5" />
-            Add Task
+            Adicionar Tarefa
           </Button>
         </div>
 

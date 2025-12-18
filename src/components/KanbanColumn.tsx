@@ -57,7 +57,7 @@ export const KanbanColumn = ({
             ))}
             {tasks.length === 0 && (
               <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-                Drop tasks here
+                Solte as tarefas aqui
               </div>
             )}
           </div>
