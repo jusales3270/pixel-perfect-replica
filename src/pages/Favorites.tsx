@@ -25,6 +25,7 @@ const Favorites = () => {
       isFavorite: false,
       lists: [],
       members: [],
+      availableTags: [],
     });
     toast({
       title: "Quadro criado!",

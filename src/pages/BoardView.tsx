@@ -316,6 +316,38 @@ const BoardView = () => {
           onUpdateCard={handleUpdateCard}
           onDeleteCard={handleDeleteCard}
           onArchiveCard={handleArchiveCard}
+          availableTags={board.availableTags}
+          onCreateTag={(name, color) => {
+            const newTag = store.addBoardTag(board.id, name, color);
+            if (newTag) {
+              toast({
+                title: "Etiqueta criada!",
+                description: `A etiqueta "${name}" foi criada.`,
+              });
+            }
+          }}
+          onUpdateTag={(tagId, name, color) => {
+            store.updateBoardTag(board.id, tagId, { name, color });
+            toast({
+              title: "Etiqueta atualizada!",
+            });
+          }}
+          onDeleteTag={(tagId) => {
+            store.deleteBoardTag(board.id, tagId);
+            toast({
+              title: "Etiqueta excluída!",
+            });
+          }}
+          onAddTagToCard={(tag) => {
+            if (selectedCard) {
+              store.addTagToCard(selectedCard.id, tag);
+            }
+          }}
+          onRemoveTagFromCard={(tagId) => {
+            if (selectedCard) {
+              store.removeTagFromCard(selectedCard.id, tagId);
+            }
+          }}
         />
       </main>
     </div>
