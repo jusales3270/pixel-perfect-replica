@@ -26,6 +26,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { store, Card } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { KanbanColumn } from "@/components/KanbanColumn";
@@ -57,6 +61,12 @@ const BoardView = () => {
   const [showNewListInput, setShowNewListInput] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "calendar" | "analytics">("board");
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [filters, setFilters] = useState({
+    search: "",
+    tags: [] as string[],
+    members: [] as string[],
+    status: "all" as "all" | "completed" | "overdue" | "without_due_date",
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -238,6 +248,46 @@ const BoardView = () => {
     });
   };
 
+  const isCardVisible = (card: Card) => {
+    const normalizedSearch = filters.search.trim().toLowerCase();
+    const today = new Date();
+
+    if (normalizedSearch && !card.title.toLowerCase().includes(normalizedSearch)) {
+      return false;
+    }
+
+    if (filters.tags.length) {
+      const cardTags = card.tags || [];
+      const hasAnyTag = cardTags.some((tag) => filters.tags.includes(tag.id));
+      if (!hasAnyTag) return false;
+    }
+
+    if (filters.members.length) {
+      const cardMembers = card.members || [];
+      const hasAnyMember = cardMembers.some((member) => filters.members.includes(member.id));
+      if (!hasAnyMember) return false;
+    }
+
+    const checklist = card.checklist || [];
+    const isCompleted = checklist.length > 0 && checklist.every((item) => item.completed);
+    const hasDueDate = Boolean(card.dueDate);
+    const isOverdue = hasDueDate && card.dueDate! < today && !isCompleted;
+
+    if (filters.status === "completed" && !isCompleted) return false;
+    if (filters.status === "overdue" && !isOverdue) return false;
+    if (filters.status === "without_due_date" && hasDueDate) return false;
+
+    return true;
+  };
+
+  const filteredLists =
+    viewMode === "board"
+      ? board.lists.map((list) => ({
+          ...list,
+          cards: list.cards.filter(isCardVisible),
+        }))
+      : board.lists;
+
   return (
     <div
        className="flex min-h-screen flex-col"
@@ -311,10 +361,187 @@ const BoardView = () => {
               <BarChart3 className="h-4 w-4" />
               Analytics
             </Button>
-            <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
-              <Filter className="h-4 w-4" />
-              Filtro
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
+                  <Filter className="h-4 w-4" />
+                  Filtro
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 rounded-xl border border-border bg-popover/95 p-4 shadow-lg">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Filtros rápidos</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Refine os cards exibidos no quadro atual.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="search" className="text-xs font-medium text-muted-foreground">
+                      Busca por título
+                    </Label>
+                    <Input
+                      id="search"
+                      placeholder="Digite para filtrar por título..."
+                      value={filters.search}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          search: e.target.value,
+                        }))
+                      }
+                      className="h-9 border-input bg-background text-sm"
+                    />
+                  </div>
+
+                  {board.availableTags.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground">Etiquetas</p>
+                      <ScrollArea className="h-20 rounded-md border border-border/60 bg-background/80 px-2 py-1">
+                        <div className="space-y-1">
+                          {board.availableTags.map((tag) => {
+                            const checked = filters.tags.includes(tag.id);
+                            return (
+                              <label
+                                key={tag.id}
+                                className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-muted"
+                              >
+                                <Checkbox
+                                  checked={checked}
+                                  onCheckedChange={(value) => {
+                                    setFilters((prev) => ({
+                                      ...prev,
+                                      tags: value
+                                        ? [...prev.tags, tag.id]
+                                        : prev.tags.filter((id) => id !== tag.id),
+                                    }));
+                                  }}
+                                />
+                                <span className="truncate text-foreground">{tag.name}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  )}
+
+                  {board.members.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground">Membros</p>
+                      <ScrollArea className="h-20 rounded-md border border-border/60 bg-background/80 px-2 py-1">
+                        <div className="space-y-1">
+                          {board.members.map((member) => {
+                            const checked = filters.members.includes(member.id);
+                            return (
+                              <label
+                                key={member.id}
+                                className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-muted"
+                              >
+                                <Checkbox
+                                  checked={checked}
+                                  onCheckedChange={(value) => {
+                                    setFilters((prev) => ({
+                                      ...prev,
+                                      members: value
+                                        ? [...prev.members, member.id]
+                                        : prev.members.filter((id) => id !== member.id),
+                                    }));
+                                  }}
+                                />
+                                <span className="truncate text-foreground">{member.name}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Status</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <Button
+                        type="button"
+                        variant={filters.status === "all" ? "default" : "outline"}
+                        size="sm"
+                        className="h-8 justify-center"
+                        onClick={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            status: "all",
+                          }))
+                        }
+                      >
+                        Todos
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={filters.status === "completed" ? "default" : "outline"}
+                        size="sm"
+                        className="h-8 justify-center"
+                        onClick={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            status: "completed",
+                          }))
+                        }
+                      >
+                        Concluídos
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={filters.status === "overdue" ? "default" : "outline"}
+                        size="sm"
+                        className="h-8 justify-center"
+                        onClick={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            status: "overdue",
+                          }))
+                        }
+                      >
+                        Atrasados
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={filters.status === "without_due_date" ? "default" : "outline"}
+                        size="sm"
+                        className="h-8 justify-center text-[11px]"
+                        onClick={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            status: "without_due_date",
+                          }))
+                        }
+                      >
+                        Sem data
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between pt-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-xs"
+                      onClick={() =>
+                        setFilters({
+                          search: "",
+                          tags: [],
+                          members: [],
+                          status: "all",
+                        })
+                      }
+                    >
+                      Limpar filtros
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
               <MoreHorizontal className="h-5 w-5" />
             </Button>
