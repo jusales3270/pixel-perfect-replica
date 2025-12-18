@@ -224,11 +224,11 @@ const BoardView = () => {
 
   return (
     <div
-      className="flex min-h-screen flex-col"
-      style={{
-        background: `linear-gradient(135deg, ${board.color} 0%, ${board.color}dd 100%)`,
-      }}
-    >
+       className="flex min-h-screen flex-col"
+       style={{
+         background: `linear-gradient(135deg, ${board.color} 0%, ${board.color} 100%)`,
+       }}
+     >
       {/* Board Header */}
       <header className="border-b border-white/20 bg-black/10 px-6 py-4 backdrop-blur-sm">
         <div className="mb-4 flex items-center justify-between">
