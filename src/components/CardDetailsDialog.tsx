@@ -22,15 +22,16 @@ import {
   MessageSquare,
   Calendar as CalendarIcon,
   User,
-  Tag,
+  Tag as TagIcon,
   Paperclip,
   ArrowRight,
   Copy,
   Archive,
   Trash2,
 } from "lucide-react";
-import type { Card, ChecklistItem, Comment } from "@/lib/store";
+import type { Card, ChecklistItem, Comment, Tag } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { LabelsManager } from "./LabelsManager";
 
 interface CardDetailsDialogProps {
   card: Card | null;
@@ -40,6 +41,12 @@ interface CardDetailsDialogProps {
   onUpdateCard: (cardId: string, updates: Partial<Card>) => void;
   onDeleteCard: (cardId: string) => void;
   onArchiveCard: (cardId: string) => void;
+  availableTags: Tag[];
+  onCreateTag: (name: string, color: string) => void;
+  onUpdateTag: (tagId: string, name: string, color: string) => void;
+  onDeleteTag: (tagId: string) => void;
+  onAddTagToCard: (tag: Tag) => void;
+  onRemoveTagFromCard: (tagId: string) => void;
 }
 
 export const CardDetailsDialog = ({
@@ -50,6 +57,12 @@ export const CardDetailsDialog = ({
   onUpdateCard,
   onDeleteCard,
   onArchiveCard,
+  availableTags,
+  onCreateTag,
+  onUpdateTag,
+  onDeleteTag,
+  onAddTagToCard,
+  onRemoveTagFromCard,
 }: CardDetailsDialogProps) => {
   const [title, setTitle] = useState(card?.title || "");
   const [description, setDescription] = useState(card?.description || "");
@@ -459,10 +472,25 @@ export const CardDetailsDialog = ({
                   <User className="h-4 w-4" />
                   Membros
                 </Button>
-                <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
-                  <Tag className="h-4 w-4" />
-                  Etiquetas
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
+                      <TagIcon className="h-4 w-4" />
+                      Etiquetas
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3" align="start">
+                    <LabelsManager
+                      availableTags={availableTags}
+                      selectedTags={card.tags}
+                      onAddTag={onAddTagToCard}
+                      onRemoveTag={onRemoveTagFromCard}
+                      onCreateTag={onCreateTag}
+                      onUpdateTag={onUpdateTag}
+                      onDeleteTag={onDeleteTag}
+                    />
+                  </PopoverContent>
+                </Popover>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="secondary" size="sm" className="w-full justify-start gap-2">

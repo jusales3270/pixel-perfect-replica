@@ -56,6 +56,7 @@ export interface Board {
   isFavorite: boolean;
   lists: List[];
   members: Member[];
+  availableTags: Tag[];
   updatedAt: string;
 }
 
@@ -68,6 +69,15 @@ export const mockBoards: Board[] = [
     color: "hsl(25 95% 55%)",
     isFavorite: false,
     updatedAt: "2 days ago",
+    availableTags: [
+      { id: "t1", name: "Research", color: "hsl(172 66% 50%)" },
+      { id: "t2", name: "Documentation", color: "hsl(45 93% 58%)" },
+      { id: "t3", name: "Design", color: "hsl(258 90% 66%)" },
+      { id: "t4", name: "Frontend", color: "hsl(220 90% 56%)" },
+      { id: "t5", name: "Backend", color: "hsl(142 71% 45%)" },
+      { id: "t6", name: "API", color: "hsl(220 90% 56%)" },
+      { id: "t7", name: "Marketing", color: "hsl(328 86% 70%)" },
+    ],
     members: [
       { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
       { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
@@ -218,6 +228,7 @@ export const mockBoards: Board[] = [
     color: "hsl(258 90% 66%)",
     isFavorite: false,
     updatedAt: "about 1 year ago",
+    availableTags: [],
     members: [
       { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
       { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
@@ -255,6 +266,15 @@ export const mockBoards: Board[] = [
     color: "hsl(172 66% 50%)",
     isFavorite: true,
     updatedAt: "2 days ago",
+    availableTags: [
+      { id: "t1", name: "Frontend", color: "hsl(220 90% 56%)" },
+      { id: "t2", name: "Priority", color: "hsl(25 95% 55%)" },
+      { id: "t3", name: "Feature", color: "hsl(142 71% 45%)" },
+      { id: "t4", name: "Analytics", color: "hsl(258 90% 66%)" },
+      { id: "t5", name: "Bug", color: "hsl(0 84% 60%)" },
+      { id: "t6", name: "Critical", color: "hsl(25 95% 55%)" },
+      { id: "t7", name: "Completed", color: "hsl(142 71% 45%)" },
+    ],
     members: [
       { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
       { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
@@ -348,6 +368,7 @@ export const mockBoards: Board[] = [
     color: "hsl(8 92% 64%)",
     isFavorite: false,
     updatedAt: "2 days ago",
+    availableTags: [],
     members: [{ id: "1", name: "Ana Silva", email: "ana@taskflow.com", avatar: "👩" }],
     lists: [],
   },
@@ -538,6 +559,86 @@ class Store {
       }
     }
     this.notify();
+  }
+
+  // Tag management methods
+  addBoardTag(boardId: string, name: string, color: string) {
+    const board = this.boards.find((b) => b.id === boardId);
+    if (board) {
+      const newTag: Tag = {
+        id: `t${Date.now()}`,
+        name,
+        color,
+      };
+      board.availableTags.push(newTag);
+      this.notify();
+      return newTag;
+    }
+  }
+
+  updateBoardTag(boardId: string, tagId: string, updates: Partial<Tag>) {
+    const board = this.boards.find((b) => b.id === boardId);
+    if (board) {
+      const tagIndex = board.availableTags.findIndex((t) => t.id === tagId);
+      if (tagIndex !== -1) {
+        board.availableTags[tagIndex] = { ...board.availableTags[tagIndex], ...updates };
+        
+        // Update tag in all cards that use it
+        for (const list of board.lists) {
+          for (const card of list.cards) {
+            const cardTagIndex = card.tags.findIndex((t) => t.id === tagId);
+            if (cardTagIndex !== -1) {
+              card.tags[cardTagIndex] = { ...card.tags[cardTagIndex], ...updates };
+            }
+          }
+        }
+        this.notify();
+      }
+    }
+  }
+
+  deleteBoardTag(boardId: string, tagId: string) {
+    const board = this.boards.find((b) => b.id === boardId);
+    if (board) {
+      board.availableTags = board.availableTags.filter((t) => t.id !== tagId);
+      
+      // Remove tag from all cards
+      for (const list of board.lists) {
+        for (const card of list.cards) {
+          card.tags = card.tags.filter((t) => t.id !== tagId);
+        }
+      }
+      this.notify();
+    }
+  }
+
+  addTagToCard(cardId: string, tag: Tag) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          // Check if tag already exists on card
+          if (!card.tags.find((t) => t.id === tag.id)) {
+            card.tags.push(tag);
+            this.notify();
+          }
+          return;
+        }
+      }
+    }
+  }
+
+  removeTagFromCard(cardId: string, tagId: string) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          card.tags = card.tags.filter((t) => t.id !== tagId);
+          this.notify();
+          return;
+        }
+      }
+    }
   }
 }
 
