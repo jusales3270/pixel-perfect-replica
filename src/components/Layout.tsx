@@ -51,7 +51,7 @@ export const Layout = ({ children, searchPlaceholder = "Buscar quadros, cartões
             }`}
           >
             <LayoutGrid className="h-5 w-5" />
-            All Boards
+            Todos os Quadros
           </Link>
           <Link
             to="/favorites"
@@ -62,7 +62,7 @@ export const Layout = ({ children, searchPlaceholder = "Buscar quadros, cartões
             }`}
           >
             <Star className="h-5 w-5" />
-            Favorites
+            Favoritos
           </Link>
           <Link
             to="/recent"
@@ -73,7 +73,7 @@ export const Layout = ({ children, searchPlaceholder = "Buscar quadros, cartões
             }`}
           >
             <Clock className="h-5 w-5" />
-            Recent
+            Recentes
           </Link>
         </nav>
 
@@ -82,7 +82,7 @@ export const Layout = ({ children, searchPlaceholder = "Buscar quadros, cartões
           <div className="mt-6">
             <div className="mb-2 flex items-center gap-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Star className="h-4 w-4" />
-              FAVORITES
+              FAVORITOS
             </div>
             <div className="space-y-1">
               {favoriteBoards.map((board) => (
@@ -107,7 +107,7 @@ export const Layout = ({ children, searchPlaceholder = "Buscar quadros, cartões
           <div className="mt-6">
             <div className="mb-2 flex items-center gap-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Clock className="h-4 w-4" />
-              RECENT
+              RECENTES
             </div>
             <div className="space-y-1">
               {recentBoards.slice(0, 4).map((board) => (

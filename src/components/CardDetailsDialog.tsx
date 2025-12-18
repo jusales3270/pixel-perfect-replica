@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -57,6 +57,8 @@ export const CardDetailsDialog = ({
   const [newComment, setNewComment] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!card) return null;
 
@@ -121,6 +123,51 @@ export const CardDetailsDialog = ({
     onUpdateCard(card.id, { dueDate: date });
   };
 
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      onUpdateCard(card.id, { coverImage: base64String });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(false);
+    
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+  };
+
+  const handleRemoveCover = () => {
+    onUpdateCard(card.id, { coverImage: undefined });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -155,16 +202,67 @@ export const CardDetailsDialog = ({
                   </h2>
                 )}
                 <p className="text-sm text-muted-foreground mt-1">
-                  in list <span className="underline">{listTitle}</span>
+                  na lista <span className="underline">{listTitle}</span>
                 </p>
               </div>
             </div>
 
+            {/* Cover Image Upload Area */}
+            {card.coverImage ? (
+              <div className="relative group">
+                <img
+                  src={card.coverImage}
+                  alt="Capa do card"
+                  className="h-48 w-full rounded-lg object-cover"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Alterar
+                  </Button>
+                  <Button
+                    onClick={handleRemoveCover}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    Remover
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                  isDraggingImage
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary hover:bg-secondary/50"
+                }`}
+              >
+                <Paperclip className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Clique ou arraste uma imagem para adicionar capa
+                </p>
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+
             {/* Labels, Members, Due Date */}
             <div className="flex flex-wrap gap-4">
-              {card.tags && card.tags.length > 0 && (
+            {card.tags && card.tags.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">Labels</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">Etiquetas</p>
                   <div className="flex flex-wrap gap-1">
                     {card.tags.map((tag) => (
                       <span
@@ -181,7 +279,7 @@ export const CardDetailsDialog = ({
 
               {card.members && card.members.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">Members</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">Membros</p>
                   <div className="flex -space-x-2">
                     {card.members.map((member) => (
                       <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
@@ -194,11 +292,11 @@ export const CardDetailsDialog = ({
 
               {card.dueDate && (
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">Due Date</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">Data de Vencimento</p>
                   <div className="flex items-center gap-2">
                     <CalendarIcon className="h-4 w-4" />
                     <span className="text-sm">
-                      {format(card.dueDate, "MMM dd, yyyy", { locale: ptBR })}
+                      {format(card.dueDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                     </span>
                   </div>
                 </div>
@@ -209,20 +307,20 @@ export const CardDetailsDialog = ({
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <AlignLeft className="h-5 w-5" />
-                <h3 className="font-semibold">Description</h3>
+                <h3 className="font-semibold">Descrição</h3>
               </div>
               {isEditingDescription ? (
                 <div className="space-y-2">
                   <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Add a more detailed description..."
+                    placeholder="Adicione uma descrição mais detalhada..."
                     className="min-h-[100px]"
                     autoFocus
                   />
                   <div className="flex gap-2">
                     <Button onClick={handleSaveDescription} size="sm">
-                      Save
+                      Salvar
                     </Button>
                     <Button
                       onClick={() => {
@@ -232,7 +330,7 @@ export const CardDetailsDialog = ({
                       variant="ghost"
                       size="sm"
                     >
-                      Cancel
+                      Cancelar
                     </Button>
                   </div>
                 </div>
@@ -241,7 +339,7 @@ export const CardDetailsDialog = ({
                   onClick={() => setIsEditingDescription(true)}
                   className="min-h-[60px] cursor-pointer rounded-md bg-secondary/50 p-3 hover:bg-secondary"
                 >
-                  {card.description || "Add a more detailed description..."}
+                  {card.description || "Adicione uma descrição mais detalhada..."}
                 </div>
               )}
             </div>
@@ -300,11 +398,11 @@ export const CardDetailsDialog = ({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleAddChecklistItem();
                   }}
-                  placeholder="Add an item..."
+                  placeholder="Adicionar um item..."
                   className="flex-1"
                 />
                 <Button onClick={handleAddChecklistItem} size="sm">
-                  Add
+                  Adicionar
                 </Button>
               </div>
             </div>
@@ -313,7 +411,7 @@ export const CardDetailsDialog = ({
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <MessageSquare className="h-5 w-5" />
-                <h3 className="font-semibold">Comments</h3>
+                <h3 className="font-semibold">Comentários</h3>
               </div>
 
               <div className="space-y-4">
@@ -340,11 +438,11 @@ export const CardDetailsDialog = ({
                     <Textarea
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Write a comment..."
+                      placeholder="Escrever um comentário..."
                       className="min-h-[80px]"
                     />
                     <Button onClick={handleAddComment} size="sm">
-                      Send
+                      Enviar
                     </Button>
                   </div>
                 </div>
@@ -355,21 +453,21 @@ export const CardDetailsDialog = ({
           {/* Sidebar */}
           <div className="w-48 shrink-0 space-y-6">
             <div>
-              <h4 className="mb-2 text-xs font-semibold text-muted-foreground">Add to card</h4>
+              <h4 className="mb-2 text-xs font-semibold text-muted-foreground">Adicionar ao cartão</h4>
               <div className="space-y-1">
                 <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
                   <User className="h-4 w-4" />
-                  Members
+                  Membros
                 </Button>
                 <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
                   <Tag className="h-4 w-4" />
-                  Labels
+                  Etiquetas
                 </Button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
                       <CalendarIcon className="h-4 w-4" />
-                      Due Date
+                      Data de Vencimento
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -382,23 +480,28 @@ export const CardDetailsDialog = ({
                     />
                   </PopoverContent>
                 </Popover>
-                <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="w-full justify-start gap-2"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Paperclip className="h-4 w-4" />
-                  Attachment
+                  Anexo
                 </Button>
               </div>
             </div>
 
             <div>
-              <h4 className="mb-2 text-xs font-semibold text-muted-foreground">Actions</h4>
+              <h4 className="mb-2 text-xs font-semibold text-muted-foreground">Ações</h4>
               <div className="space-y-1">
                 <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
                   <ArrowRight className="h-4 w-4" />
-                  Move
+                  Mover
                 </Button>
                 <Button variant="secondary" size="sm" className="w-full justify-start gap-2">
                   <Copy className="h-4 w-4" />
-                  Copy
+                  Copiar
                 </Button>
                 <Button
                   variant="secondary"
@@ -410,7 +513,7 @@ export const CardDetailsDialog = ({
                   }}
                 >
                   <Archive className="h-4 w-4" />
-                  Archive
+                  Arquivar
                 </Button>
                 <Button
                   variant="secondary"
@@ -422,7 +525,7 @@ export const CardDetailsDialog = ({
                   }}
                 >
                   <Trash2 className="h-4 w-4" />
-                  Delete
+                  Excluir
                 </Button>
               </div>
             </div>

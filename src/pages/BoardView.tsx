@@ -206,18 +206,18 @@ const BoardView = () => {
             </div>
             <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
               <Users className="h-4 w-4" />
-              Invite
+              Convidar
             </Button>
           </div>
 
           <div className="flex items-center gap-2">
             <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
               <LayoutGrid className="h-4 w-4" />
-              Board
+              Quadro
             </Button>
             <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
               <Calendar className="h-4 w-4" />
-              Calendar
+              Calendário
             </Button>
             <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
               <BarChart3 className="h-4 w-4" />
@@ -225,7 +225,7 @@ const BoardView = () => {
             </Button>
             <Button variant="ghost" className="gap-2 text-white hover:bg-white/20">
               <Filter className="h-4 w-4" />
-              Filter
+              Filtro
             </Button>
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
               <MoreHorizontal className="h-5 w-5" />
@@ -287,7 +287,7 @@ const BoardView = () => {
                 className="flex w-80 shrink-0 items-center gap-2 rounded-xl bg-white/20 p-4 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
               >
                 <Plus className="h-5 w-5" />
-                <span className="font-medium">Add another list</span>
+                <span className="font-medium">Adicionar outra lista</span>
               </button>
             )}
           </div>

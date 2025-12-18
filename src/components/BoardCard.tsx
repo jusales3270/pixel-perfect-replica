@@ -96,7 +96,7 @@ export const BoardCard = ({ board, onToggleFavorite, onDelete }: BoardCardProps)
           </span>
         </div>
 
-        <p className="mt-2 text-xs text-muted-foreground">Updated {board.updatedAt}</p>
+        <p className="mt-2 text-xs text-muted-foreground">Atualizado {board.updatedAt}</p>
       </div>
     </div>
   );

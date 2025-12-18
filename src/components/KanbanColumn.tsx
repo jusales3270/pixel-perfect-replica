@@ -96,7 +96,7 @@ export const KanbanColumn = ({ list, onAddCard, onDeleteCard, onDuplicateCard, o
                 className="flex w-full items-center gap-2 rounded-lg p-2 text-sm text-white transition-colors hover:bg-white/10"
               >
                 <Plus className="h-4 w-4" />
-                <span>Add a card</span>
+                <span>Adicionar um cartão</span>
               </button>
             )}
           </div>
