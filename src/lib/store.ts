@@ -640,6 +640,36 @@ class Store {
       }
     }
   }
+
+  // Member management methods
+  addMemberToCard(cardId: string, member: Member) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          // Check if member already exists on card
+          if (!card.members.find((m) => m.id === member.id)) {
+            card.members.push(member);
+            this.notify();
+          }
+          return;
+        }
+      }
+    }
+  }
+
+  removeMemberFromCard(cardId: string, memberId: string) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          card.members = card.members.filter((m) => m.id !== memberId);
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
 }
 
 export const store = new Store();
