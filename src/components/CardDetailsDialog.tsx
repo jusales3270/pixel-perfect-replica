@@ -80,8 +80,10 @@ export const CardDetailsDialog = ({
   allBoards,
   onMembersMentioned,
 }: CardDetailsDialogProps) => {
-  const [title, setTitle] = useState(card?.title || "");
-  const [description, setDescription] = useState(card?.description || "");
+  if (!card) return null;
+
+  const [title, setTitle] = useState(card.title || "");
+  const [description, setDescription] = useState(card.description || "");
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [newComment, setNewComment] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -93,8 +95,7 @@ export const CardDetailsDialog = ({
   const [isAttachmentPreviewOpen, setIsAttachmentPreviewOpen] = useState(false);
   const [editingAttachmentId, setEditingAttachmentId] = useState<string | null>(null);
   const [editingAttachmentName, setEditingAttachmentName] = useState("");
-
-  if (!card) return null;
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   const completedItems = card.checklist?.filter((item) => item.completed).length || 0;
   const totalItems = card.checklist?.length || 0;
@@ -106,8 +107,6 @@ export const CardDetailsDialog = ({
     }
     setIsEditingTitle(false);
   };
-
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   const handleSaveDescription = () => {
     if (description !== card.description) {
