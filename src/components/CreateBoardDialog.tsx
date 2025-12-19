@@ -42,22 +42,22 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] w-full bg-background border rounded-lg shadow-lg p-6">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Criar Novo Quadro</DialogTitle>
+          <DialogTitle>Create New Board</DialogTitle>
           <DialogDescription>
-            Dê um título ao seu quadro e escolha uma cor de fundo.
+            Give your board a title and choose a background color.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Preview */}
           <div
-             className="flex h-32 items-center justify-center rounded-lg"
-             style={{
-               background: `linear-gradient(135deg, ${selectedColor} 0%, ${selectedColor} 100%)`,
-             }}
-           >
+            className="flex h-32 items-center justify-center rounded-lg"
+            style={{
+              background: `linear-gradient(135deg, ${selectedColor} 0%, ${selectedColor}dd 100%)`,
+            }}
+          >
             <span className="text-2xl font-bold text-white">
               {title || "Board Title"}
             </span>
@@ -65,19 +65,19 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
 
           {/* Title Input */}
           <div className="space-y-2">
-            <Label htmlFor="title">Título do Quadro</Label>
+            <Label htmlFor="title">Board Title</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Digite o título do quadro..."
+              placeholder="Enter board title..."
               className="border-primary/50 focus-visible:ring-primary"
             />
           </div>
 
           {/* Color Selection */}
           <div className="space-y-2">
-            <Label>Fundo</Label>
+            <Label>Background</Label>
             <div className="flex gap-2">
               {boardColors.map((color) => (
                 <button
@@ -99,10 +99,10 @@ export const CreateBoardDialog = ({ open, onOpenChange, onCreateBoard }: CreateB
           {/* Actions */}
           <div className="flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" disabled={!title.trim()}>
-              Criar Quadro
+              Create Board
             </Button>
           </div>
         </form>

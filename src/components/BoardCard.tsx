@@ -23,13 +23,13 @@ export const BoardCard = ({ board, onToggleFavorite, onDelete }: BoardCardProps)
 
   return (
     <div className="group relative overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all hover:shadow-md">
-       {/* Color Header */}
-       <div
-         className="h-32"
-         style={{
-           background: `linear-gradient(135deg, ${board.color} 0%, ${board.color} 100%)`,
-         }}
-       />
+      {/* Color Header */}
+      <div
+        className="h-32"
+        style={{
+          background: `linear-gradient(135deg, ${board.color} 0%, ${board.color}dd 100%)`,
+        }}
+      />
 
       {/* Content */}
       <div className="p-4">
@@ -96,7 +96,7 @@ export const BoardCard = ({ board, onToggleFavorite, onDelete }: BoardCardProps)
           </span>
         </div>
 
-        <p className="mt-2 text-xs text-muted-foreground">Atualizado {board.updatedAt}</p>
+        <p className="mt-2 text-xs text-muted-foreground">Updated {board.updatedAt}</p>
       </div>
     </div>
   );

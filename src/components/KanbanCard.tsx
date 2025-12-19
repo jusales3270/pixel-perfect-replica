@@ -1,9 +1,7 @@
 import { forwardRef } from "react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Calendar, CheckSquare, Trash2, Copy, MessageSquare, AlignLeft } from "lucide-react";
+import { GripVertical, Calendar, CheckSquare, Trash2, Copy } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import type { Card } from "@/lib/store";
@@ -12,11 +10,10 @@ interface KanbanCardProps {
   card: Card;
   onDelete?: () => void;
   onDuplicate?: () => void;
-  onClick?: () => void;
 }
 
 export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
-  ({ card, onDelete, onDuplicate, onClick }, ref) => {
+  ({ card, onDelete, onDuplicate }, ref) => {
     const {
       attributes,
       listeners,
@@ -51,8 +48,7 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
       <div
         ref={setNodeRef}
         style={style}
-        onClick={onClick}
-        className="group cursor-pointer rounded-lg bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
+        className="group rounded-lg bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
       >
         {/* Cover Image */}
         {card.coverImage && (
@@ -121,35 +117,20 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
         </div>
 
         {/* Card Footer */}
-        <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+        <div className="mt-2 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            {/* Description Indicator */}
-            {card.description && (
-              <div className="flex items-center gap-1">
-                <AlignLeft className="h-3 w-3" />
-              </div>
-            )}
-
-            {/* Comments Count */}
-            {card.comments && card.comments.length > 0 && (
-              <div className="flex items-center gap-1">
-                <MessageSquare className="h-3 w-3" />
-                <span>{card.comments.length}</span>
-              </div>
-            )}
-
             {/* Due Date */}
             {card.dueDate && (
-              <div className="flex items-center gap-1 rounded bg-destructive/10 px-2 py-0.5 text-destructive">
+              <div className="flex items-center gap-1 rounded bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
                 <Calendar className="h-3 w-3" />
-                <span>{format(card.dueDate, "MMM dd", { locale: ptBR })}</span>
+                <span>{card.dueDate}</span>
               </div>
             )}
 
             {/* Checklist */}
             {card.checklist && card.checklist.length > 0 && (
               <div
-                className={`flex items-center gap-1 rounded px-2 py-0.5 ${
+                className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs ${
                   completedChecklist === totalChecklist
                     ? "bg-green-500/10 text-green-600"
                     : "bg-muted text-muted-foreground"

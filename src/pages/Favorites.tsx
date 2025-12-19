@@ -25,7 +25,6 @@ const Favorites = () => {
       isFavorite: false,
       lists: [],
       members: [],
-      availableTags: [],
     });
     toast({
       title: "Quadro criado!",
@@ -51,7 +50,7 @@ const Favorites = () => {
         {/* Header */}
         <div className="mb-8 flex items-center gap-3">
           <Star className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Quadros Favoritos</h1>
+          <h1 className="text-3xl font-bold">Favorite Boards</h1>
         </div>
 
         {/* Boards Grid */}

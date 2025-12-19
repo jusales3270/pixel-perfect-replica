@@ -25,7 +25,6 @@ const Recent = () => {
       isFavorite: false,
       lists: [],
       members: [],
-      availableTags: [],
     });
     toast({
       title: "Quadro criado!",
@@ -51,7 +50,7 @@ const Recent = () => {
         {/* Header */}
         <div className="mb-8 flex items-center gap-3">
           <Clock className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Recentes</h1>
+          <h1 className="text-3xl font-bold">Recent</h1>
         </div>
 
         {/* Boards Grid */}

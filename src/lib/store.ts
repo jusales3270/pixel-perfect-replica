@@ -17,37 +17,6 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
-export interface Comment {
-  id: string;
-  userId: string;
-  userName: string;
-  userAvatar: string;
-  text: string;
-  createdAt: string;
-}
-
-export interface Attachment {
-  id: string;
-  name: string;
-  type: string;
-  url: string;
-  size: number;
-  createdAt: string;
-}
-
-export type NotificationType = "mention" | "assignment" | "card_move";
-
-export interface Notification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  description?: string;
-  createdAt: string;
-  read: boolean;
-  boardId?: string;
-  cardId?: string;
-}
-
 export interface Card {
   id: string;
   title: string;
@@ -55,11 +24,9 @@ export interface Card {
   listId: string;
   tags: Tag[];
   members: Member[];
-  dueDate?: Date;
+  dueDate?: string;
   coverImage?: string;
   checklist?: ChecklistItem[];
-  comments?: Comment[];
-  attachments?: Attachment[];
   order: number;
 }
 
@@ -79,42 +46,194 @@ export interface Board {
   isFavorite: boolean;
   lists: List[];
   members: Member[];
-  availableTags: Tag[];
   updatedAt: string;
 }
 
-// Mock data (start with an empty workspace so tests use only newly created data)
-export const mockBoards: Board[] = [];
-
+// Mock data
+export const mockBoards: Board[] = [
+  {
+    id: "1",
+    title: "Product Launch 2025",
+    description: "Planning and execution of Q1 product launch",
+    color: "hsl(25 95% 55%)",
+    isFavorite: false,
+    updatedAt: "2 days ago",
+    members: [
+      { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
+      { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
+      { id: "3", name: "Pedro Costa", email: "pedro@taskflow.com", avatar: "👨‍🎨" },
+      { id: "4", name: "Ana Lima", email: "ana@taskflow.com", avatar: "👩‍💻" },
+    ],
+    lists: [
+      {
+        id: "l1",
+        title: "A Fazer",
+        boardId: "1",
+        order: 0,
+        cards: [],
+      },
+      {
+        id: "l2",
+        title: "Em Progresso",
+        boardId: "1",
+        order: 1,
+        cards: [],
+      },
+      {
+        id: "l3",
+        title: "Concluído",
+        boardId: "1",
+        order: 2,
+        cards: [],
+      },
+    ],
+  },
+  {
+    id: "2",
+    title: "Mobile App Development",
+    description: "iOS and Android app development roadmap",
+    color: "hsl(258 90% 66%)",
+    isFavorite: false,
+    updatedAt: "about 1 year ago",
+    members: [
+      { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
+      { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
+      { id: "5", name: "Carlos Souza", email: "carlos@taskflow.com", avatar: "👨‍💻" },
+      { id: "6", name: "Julia Oliveira", email: "julia@taskflow.com", avatar: "👩‍🎨" },
+    ],
+    lists: [
+      {
+        id: "l4",
+        title: "Backlog",
+        boardId: "2",
+        order: 0,
+        cards: [],
+      },
+      {
+        id: "l5",
+        title: "Em Desenvolvimento",
+        boardId: "2",
+        order: 1,
+        cards: [],
+      },
+      {
+        id: "l6",
+        title: "Testando",
+        boardId: "2",
+        order: 2,
+        cards: [],
+      },
+    ],
+  },
+  {
+    id: "3",
+    title: "Team Sprint Board",
+    description: "Current sprint tasks and progress",
+    color: "hsl(172 66% 50%)",
+    isFavorite: true,
+    updatedAt: "2 days ago",
+    members: [
+      { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
+      { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
+      { id: "3", name: "Pedro Costa", email: "pedro@taskflow.com", avatar: "👨‍🎨" },
+      { id: "4", name: "Ana Lima", email: "ana@taskflow.com", avatar: "👩‍💻" },
+      { id: "7", name: "Rafael Mendes", email: "rafael@taskflow.com", avatar: "🧑‍💼" },
+    ],
+    lists: [
+      {
+        id: "l7",
+        title: "Sprint Backlog",
+        boardId: "3",
+        order: 0,
+        cards: [
+          {
+            id: "c1",
+            title: "Performance Optimization",
+            listId: "l7",
+            tags: [
+              { id: "t1", name: "Frontend", color: "hsl(220 90% 56%)" },
+              { id: "t2", name: "Priority", color: "hsl(25 95% 55%)" },
+            ],
+            members: [{ id: "3", name: "Pedro Costa", email: "pedro@taskflow.com", avatar: "👨‍🎨" }],
+            order: 0,
+          },
+        ],
+      },
+      {
+        id: "l8",
+        title: "In Progress",
+        boardId: "3",
+        order: 1,
+        cards: [
+          {
+            id: "c2",
+            title: "Dashboard Analytics Widget",
+            coverImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop",
+            listId: "l8",
+            tags: [
+              { id: "t3", name: "Feature", color: "hsl(142 71% 45%)" },
+              { id: "t4", name: "Analytics", color: "hsl(258 90% 66%)" },
+            ],
+            members: [
+              { id: "1", name: "João Silva", email: "joao@taskflow.com", avatar: "👨‍💼" },
+              { id: "2", name: "Maria Santos", email: "maria@taskflow.com", avatar: "👩‍💼" },
+            ],
+            dueDate: "Dec 18",
+            checklist: [
+              { id: "ch1", text: "Design mockup", completed: true },
+              { id: "ch2", text: "API integration", completed: false },
+              { id: "ch3", text: "Testing", completed: false },
+            ],
+            order: 0,
+          },
+          {
+            id: "c3",
+            title: "Bug: Login timeout issue",
+            listId: "l8",
+            tags: [
+              { id: "t5", name: "Bug", color: "hsl(0 84% 60%)" },
+              { id: "t6", name: "Critical", color: "hsl(25 95% 55%)" },
+            ],
+            members: [{ id: "4", name: "Ana Lima", email: "ana@taskflow.com", avatar: "👩‍💻" }],
+            dueDate: "Dec 16",
+            order: 1,
+          },
+        ],
+      },
+      {
+        id: "l9",
+        title: "Completed",
+        boardId: "3",
+        order: 2,
+        cards: [
+          {
+            id: "c4",
+            title: "User Profile Page",
+            listId: "l9",
+            tags: [{ id: "t7", name: "Completed", color: "hsl(142 71% 45%)" }],
+            members: [{ id: "5", name: "Carlos Souza", email: "carlos@taskflow.com", avatar: "👨‍💻" }],
+            order: 0,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "4",
+    title: "teste prefs",
+    description: "",
+    color: "hsl(8 92% 64%)",
+    isFavorite: false,
+    updatedAt: "2 days ago",
+    members: [{ id: "1", name: "Ana Silva", email: "ana@taskflow.com", avatar: "👩" }],
+    lists: [],
+  },
+];
 
 // Store state
 class Store {
   private boards: Board[] = mockBoards;
-  private notifications: Notification[] = [];
   private listeners: (() => void)[] = [];
-
-  constructor() {
-    if (typeof window !== "undefined") {
-      try {
-        const storedBoards = window.localStorage.getItem("taskflow-boards");
-        if (storedBoards) {
-          this.boards = JSON.parse(storedBoards) as Board[];
-        }
-      } catch (error) {
-        console.error("Failed to load boards from localStorage", error);
-        this.boards = mockBoards;
-      }
-    }
-  }
-
-  private saveBoards() {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem("taskflow-boards", JSON.stringify(this.boards));
-    } catch (error) {
-      console.error("Failed to save boards to localStorage", error);
-    }
-  }
 
   subscribe(listener: () => void) {
     this.listeners.push(listener);
@@ -124,7 +243,6 @@ class Store {
   }
 
   private notify() {
-    this.saveBoards();
     this.listeners.forEach((listener) => listener());
   }
 
@@ -144,40 +262,6 @@ class Store {
     return this.boards.slice().sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-  }
-
-  getNotifications(): Notification[] {
-    return this.notifications.slice().sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
-
-  getUnreadNotificationsCount(): number {
-    return this.notifications.filter((n) => !n.read).length;
-  }
-
-  addNotification(notification: Omit<Notification, "id" | "read" | "createdAt">) {
-    const newNotification: Notification = {
-      id: `n${Date.now()}${Math.random().toString(16).slice(2)}`,
-      createdAt: new Date().toISOString(),
-      read: false,
-      ...notification,
-    };
-
-    this.notifications.unshift(newNotification);
-
-    // Mantém apenas as 50 mais recentes
-    if (this.notifications.length > 50) {
-      this.notifications = this.notifications.slice(0, 50);
-    }
-
-    this.notify();
-  }
-
-  markAllNotificationsAsRead() {
-    if (!this.notifications.length) return;
-    this.notifications = this.notifications.map((n) => ({ ...n, read: true }));
-    this.notify();
   }
 
   addBoard(board: Omit<Board, "id" | "updatedAt">) {
@@ -241,7 +325,6 @@ class Store {
           order: list.cards.length,
         };
         list.cards.push(newCard);
-        board.updatedAt = "just now";
         this.notify();
         return newCard;
       }
@@ -261,7 +344,6 @@ class Store {
             order: list.cards.length,
           };
           list.cards.push(duplicatedCard);
-          board.updatedAt = "just now";
           this.notify();
           return duplicatedCard;
         }
@@ -269,73 +351,40 @@ class Store {
     }
   }
 
-  updateCard(cardId: string, updates: Partial<Card>) {
+  moveCard(cardId: string, newListId: string) {
     for (const board of this.boards) {
+      // Encontrar o card na lista atual
+      let sourceList: List | undefined;
+      let cardToMove: Card | undefined;
+      let cardIndex = -1;
+
       for (const list of board.lists) {
-        const cardIndex = list.cards.findIndex((c) => c.id === cardId);
+        cardIndex = list.cards.findIndex((c) => c.id === cardId);
         if (cardIndex !== -1) {
-          list.cards[cardIndex] = { ...list.cards[cardIndex], ...updates };
-          board.updatedAt = "just now";
-          this.notify();
-          return;
-        }
-      }
-    }
-  }
-
-  archiveCard(cardId: string) {
-    // For now, just delete - could implement archive functionality later
-    this.deleteCard(cardId);
-  }
-
-  moveCard(cardId: string, newListId: string, targetBoardId?: string) {
-    let cardToMove: Card | undefined;
-    let sourceBoardId: string | undefined;
-    let sourceListId: string | undefined;
-
-    // Find the card in all boards
-    for (const board of this.boards) {
-      for (const list of board.lists) {
-        const card = list.cards.find((c) => c.id === cardId);
-        if (card) {
-          cardToMove = card;
-          sourceBoardId = board.id;
-          sourceListId = list.id;
+          sourceList = list;
+          cardToMove = list.cards[cardIndex];
           break;
         }
       }
-      if (cardToMove) break;
-    }
 
-    if (!cardToMove || !sourceBoardId || !sourceListId) return;
-
-    // Use source board as target if not specified
-    const targetBoard = targetBoardId || sourceBoardId;
-    
-    // Check if it's the same list
-    if (targetBoard === sourceBoardId && newListId === sourceListId) return;
-
-    // Remove from source list
-    const sourceBoard = this.boards.find((b) => b.id === sourceBoardId);
-    if (sourceBoard) {
-      const sourceList = sourceBoard.lists.find((l) => l.id === sourceListId);
-      if (sourceList) {
-        sourceList.cards = sourceList.cards.filter((c) => c.id !== cardId);
+      if (sourceList && cardToMove) {
+        // Se a lista de destino for diferente da origem
+        if (sourceList.id !== newListId) {
+          // Remover da lista original
+          sourceList.cards.splice(cardIndex, 1);
+          
+          // Adicionar na nova lista
+          const targetList = board.lists.find((l) => l.id === newListId);
+          if (targetList) {
+            cardToMove.listId = newListId;
+            targetList.cards.push(cardToMove);
+            this.notify();
+            return;
+          }
+        }
+        return;
       }
     }
-
-    // Add to target list
-    const destBoard = this.boards.find((b) => b.id === targetBoard);
-    if (destBoard) {
-      const targetList = destBoard.lists.find((l) => l.id === newListId);
-      if (targetList) {
-        cardToMove.listId = newListId;
-        targetList.cards.push(cardToMove);
-        destBoard.updatedAt = "just now";
-      }
-    }
-
-    this.notify();
   }
 
   deleteCard(cardId: string) {
@@ -345,116 +394,6 @@ class Store {
       }
     }
     this.notify();
-  }
-
-  // Tag management methods
-  addBoardTag(boardId: string, name: string, color: string) {
-    const board = this.boards.find((b) => b.id === boardId);
-    if (board) {
-      const newTag: Tag = {
-        id: `t${Date.now()}`,
-        name,
-        color,
-      };
-      board.availableTags.push(newTag);
-      this.notify();
-      return newTag;
-    }
-  }
-
-  updateBoardTag(boardId: string, tagId: string, updates: Partial<Tag>) {
-    const board = this.boards.find((b) => b.id === boardId);
-    if (board) {
-      const tagIndex = board.availableTags.findIndex((t) => t.id === tagId);
-      if (tagIndex !== -1) {
-        board.availableTags[tagIndex] = { ...board.availableTags[tagIndex], ...updates };
-        
-        // Update tag in all cards that use it
-        for (const list of board.lists) {
-          for (const card of list.cards) {
-            const cardTagIndex = card.tags.findIndex((t) => t.id === tagId);
-            if (cardTagIndex !== -1) {
-              card.tags[cardTagIndex] = { ...card.tags[cardTagIndex], ...updates };
-            }
-          }
-        }
-        this.notify();
-      }
-    }
-  }
-
-  deleteBoardTag(boardId: string, tagId: string) {
-    const board = this.boards.find((b) => b.id === boardId);
-    if (board) {
-      board.availableTags = board.availableTags.filter((t) => t.id !== tagId);
-      
-      // Remove tag from all cards
-      for (const list of board.lists) {
-        for (const card of list.cards) {
-          card.tags = card.tags.filter((t) => t.id !== tagId);
-        }
-      }
-      this.notify();
-    }
-  }
-
-  addTagToCard(cardId: string, tag: Tag) {
-    for (const board of this.boards) {
-      for (const list of board.lists) {
-        const card = list.cards.find((c) => c.id === cardId);
-        if (card) {
-          // Check if tag already exists on card
-          if (!card.tags.find((t) => t.id === tag.id)) {
-            card.tags.push(tag);
-            this.notify();
-          }
-          return;
-        }
-      }
-    }
-  }
-
-  removeTagFromCard(cardId: string, tagId: string) {
-    for (const board of this.boards) {
-      for (const list of board.lists) {
-        const card = list.cards.find((c) => c.id === cardId);
-        if (card) {
-          card.tags = card.tags.filter((t) => t.id !== tagId);
-          this.notify();
-          return;
-        }
-      }
-    }
-  }
-
-  // Member management methods
-  addMemberToCard(cardId: string, member: Member) {
-    for (const board of this.boards) {
-      for (const list of board.lists) {
-        const card = list.cards.find((c) => c.id === cardId);
-        if (card) {
-          // Check if member already exists on card
-          if (!card.members.find((m) => m.id === member.id)) {
-            card.members.push(member);
-            this.notify();
-          }
-          return;
-        }
-      }
-    }
-  }
-
-  removeMemberFromCard(cardId: string, memberId: string) {
-    for (const board of this.boards) {
-      for (const list of board.lists) {
-        const card = list.cards.find((c) => c.id === cardId);
-        if (card) {
-          card.members = card.members.filter((m) => m.id !== memberId);
-          this.notify();
-          return;
-        }
-      }
-    }
   }
 }
 
