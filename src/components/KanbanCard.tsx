@@ -10,10 +10,11 @@ interface KanbanCardProps {
   card: Card;
   onDelete?: () => void;
   onDuplicate?: () => void;
+  onClick?: () => void;
 }
 
 export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
-  ({ card, onDelete, onDuplicate }, ref) => {
+  ({ card, onDelete, onDuplicate, onClick }, ref) => {
     const {
       attributes,
       listeners,
@@ -58,7 +59,8 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
       <div
         ref={setRefs}
         style={style}
-        className="group rounded-lg bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
+        onClick={onClick}
+        className="group cursor-pointer rounded-lg bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
       >
         {/* Cover Image */}
         {card.coverImage && (
