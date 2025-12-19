@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { store, Card } from "@/lib/store";
+import { store, Card, Member, Tag, Attachment } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCard } from "@/components/KanbanCard";
@@ -150,6 +150,60 @@ const BoardView = () => {
 
   const handleUpdateCard = (cardId: string, updates: Partial<Card>) => {
     store.updateCard(cardId, updates);
+  };
+
+  const handleAddMember = (cardId: string, member: Member) => {
+    store.addMemberToCard(cardId, member);
+    toast({
+      title: "Member added",
+      description: `${member.name} was added to the card.`,
+    });
+  };
+
+  const handleRemoveMember = (cardId: string, memberId: string) => {
+    store.removeMemberFromCard(cardId, memberId);
+    toast({
+      title: "Member removed",
+    });
+  };
+
+  const handleAddTag = (cardId: string, tag: Tag) => {
+    store.addTagToCard(cardId, tag);
+    toast({
+      title: "Label added",
+      description: `Label "${tag.name}" was added.`,
+    });
+  };
+
+  const handleRemoveTag = (cardId: string, tagId: string) => {
+    store.removeTagFromCard(cardId, tagId);
+    toast({
+      title: "Label removed",
+    });
+  };
+
+  const handleAddAttachment = (cardId: string, attachment: Attachment) => {
+    store.addAttachmentToCard(cardId, attachment);
+  };
+
+  const handleRemoveAttachment = (cardId: string, attachmentId: string) => {
+    store.removeAttachmentFromCard(cardId, attachmentId);
+  };
+
+  const handleMoveCard = (cardId: string, newListId: string) => {
+    store.moveCard(cardId, newListId);
+    toast({
+      title: "Card moved",
+      description: "The card was moved to another list.",
+    });
+  };
+
+  const handleArchiveCard = (cardId: string) => {
+    store.toggleArchiveCard(cardId);
+    toast({
+      title: "Card archived",
+      description: "The card has been archived.",
+    });
   };
 
   const selectedCardData = selectedCardId ? store.getCard(selectedCardId) : undefined;
@@ -297,11 +351,21 @@ const BoardView = () => {
           <CardDetailsDialog
             card={selectedCardData.card}
             listTitle={selectedCardData.listTitle}
+            boardMembers={board.members}
+            availableLists={board.lists}
             open={cardDialogOpen}
             onOpenChange={setCardDialogOpen}
             onUpdateCard={handleUpdateCard}
             onDeleteCard={handleDeleteCard}
             onDuplicateCard={handleDuplicateCard}
+            onAddMember={handleAddMember}
+            onRemoveMember={handleRemoveMember}
+            onAddTag={handleAddTag}
+            onRemoveTag={handleRemoveTag}
+            onAddAttachment={handleAddAttachment}
+            onRemoveAttachment={handleRemoveAttachment}
+            onMoveCard={handleMoveCard}
+            onArchiveCard={handleArchiveCard}
           />
         )}
       </main>

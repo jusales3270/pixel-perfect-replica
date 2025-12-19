@@ -17,6 +17,24 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
+export interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  type: 'image' | 'video' | 'audio' | 'other';
+  size: number;
+  uploadedAt: string;
+}
+
+export interface Comment {
+  id: string;
+  text: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar: string;
+  createdAt: string;
+}
+
 export interface Card {
   id: string;
   title: string;
@@ -27,6 +45,9 @@ export interface Card {
   dueDate?: string;
   coverImage?: string;
   checklist?: ChecklistItem[];
+  attachments?: Attachment[];
+  comments?: Comment[];
+  archived?: boolean;
   order: number;
 }
 
@@ -322,6 +343,7 @@ class Store {
           listId,
           tags: [],
           members: [],
+          archived: false,
           order: list.cards.length,
         };
         list.cards.push(newCard);
@@ -415,6 +437,116 @@ class Store {
         const card = list.cards.find((c) => c.id === cardId);
         if (card) {
           return { card, listTitle: list.title };
+        }
+      }
+    }
+  }
+
+  toggleArchiveCard(cardId: string) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          card.archived = !card.archived;
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
+
+  addMemberToCard(cardId: string, member: Member) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          if (!card.members.some((m) => m.id === member.id)) {
+            card.members.push(member);
+            this.notify();
+          }
+          return;
+        }
+      }
+    }
+  }
+
+  removeMemberFromCard(cardId: string, memberId: string) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          card.members = card.members.filter((m) => m.id !== memberId);
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
+
+  addTagToCard(cardId: string, tag: Tag) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          if (!card.tags.some((t) => t.id === tag.id)) {
+            card.tags.push(tag);
+            this.notify();
+          }
+          return;
+        }
+      }
+    }
+  }
+
+  removeTagFromCard(cardId: string, tagId: string) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          card.tags = card.tags.filter((t) => t.id !== tagId);
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
+
+  addAttachmentToCard(cardId: string, attachment: Attachment) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          if (!card.attachments) card.attachments = [];
+          card.attachments.push(attachment);
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
+
+  removeAttachmentFromCard(cardId: string, attachmentId: string) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card && card.attachments) {
+          card.attachments = card.attachments.filter((a) => a.id !== attachmentId);
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
+
+  addCommentToCard(cardId: string, comment: Comment) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          if (!card.comments) card.comments = [];
+          card.comments.push(comment);
+          this.notify();
+          return;
         }
       }
     }
