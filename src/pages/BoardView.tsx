@@ -29,6 +29,7 @@ import { store, Card } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCard } from "@/components/KanbanCard";
+import { CardDetailsDialog } from "@/components/CardDetailsDialog";
 
 const BoardView = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +39,8 @@ const BoardView = () => {
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const [newListTitle, setNewListTitle] = useState("");
   const [showNewListInput, setShowNewListInput] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [cardDialogOpen, setCardDialogOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -140,6 +143,17 @@ const BoardView = () => {
     }
   };
 
+  const handleCardClick = (cardId: string) => {
+    setSelectedCardId(cardId);
+    setCardDialogOpen(true);
+  };
+
+  const handleUpdateCard = (cardId: string, updates: Partial<Card>) => {
+    store.updateCard(cardId, updates);
+  };
+
+  const selectedCardData = selectedCardId ? store.getCard(selectedCardId) : undefined;
+
   return (
     <div
       className="flex min-h-screen flex-col"
@@ -222,6 +236,7 @@ const BoardView = () => {
                 onAddCard={handleAddCard}
                 onDeleteCard={handleDeleteCard}
                 onDuplicateCard={handleDuplicateCard}
+                onCardClick={handleCardClick}
               />
             ))}
 
@@ -276,6 +291,19 @@ const BoardView = () => {
             ) : null}
           </DragOverlay>
         </DndContext>
+
+        {/* Card Details Dialog */}
+        {selectedCardData && (
+          <CardDetailsDialog
+            card={selectedCardData.card}
+            listTitle={selectedCardData.listTitle}
+            open={cardDialogOpen}
+            onOpenChange={setCardDialogOpen}
+            onUpdateCard={handleUpdateCard}
+            onDeleteCard={handleDeleteCard}
+            onDuplicateCard={handleDuplicateCard}
+          />
+        )}
       </main>
     </div>
   );

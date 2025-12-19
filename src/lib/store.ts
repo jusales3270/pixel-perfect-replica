@@ -387,6 +387,19 @@ class Store {
     }
   }
 
+  updateCard(cardId: string, updates: Partial<Card>) {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const cardIndex = list.cards.findIndex((c) => c.id === cardId);
+        if (cardIndex !== -1) {
+          list.cards[cardIndex] = { ...list.cards[cardIndex], ...updates };
+          this.notify();
+          return;
+        }
+      }
+    }
+  }
+
   deleteCard(cardId: string) {
     for (const board of this.boards) {
       for (const list of board.lists) {
@@ -394,6 +407,17 @@ class Store {
       }
     }
     this.notify();
+  }
+
+  getCard(cardId: string): { card: Card; listTitle: string } | undefined {
+    for (const board of this.boards) {
+      for (const list of board.lists) {
+        const card = list.cards.find((c) => c.id === cardId);
+        if (card) {
+          return { card, listTitle: list.title };
+        }
+      }
+    }
   }
 }
 
