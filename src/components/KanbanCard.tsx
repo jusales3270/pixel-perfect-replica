@@ -23,6 +23,16 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
       isDragging,
     } = useSortable({ id: card.id });
 
+    // Combine refs
+    const setRefs = (element: HTMLDivElement | null) => {
+      setNodeRef(element);
+      if (typeof ref === 'function') {
+        ref(element);
+      } else if (ref) {
+        ref.current = element;
+      }
+    };
+
     const style = {
       transform: CSS.Transform.toString(transform),
       transition: transition || "transform 200ms cubic-bezier(0.25, 0.1, 0.25, 1)",
@@ -35,7 +45,7 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
     if (isDragging) {
       return (
         <div
-          ref={setNodeRef}
+          ref={setRefs}
           style={style}
           className="ghost-placeholder rounded-lg p-3"
         >
@@ -46,7 +56,7 @@ export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
 
     return (
       <div
-        ref={setNodeRef}
+        ref={setRefs}
         style={style}
         className="group rounded-lg bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md"
       >
