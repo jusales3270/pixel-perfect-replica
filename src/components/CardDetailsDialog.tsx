@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, AlignLeft, CheckSquare, MessageSquare, Paperclip, Archive, Trash2, Copy, MoveRight } from "lucide-react";
+import { X, AlignLeft, CheckSquare, MessageSquare, Paperclip, Archive, Trash2, Copy, Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,16 +11,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import type { Card } from "@/lib/store";
+import { AddMemberDialog } from "./AddMemberDialog";
+import { AddLabelDialog } from "./AddLabelDialog";
+import { AttachmentUpload } from "./AttachmentUpload";
+import { MoveCardDialog } from "./MoveCardDialog";
+import type { Card, Member, Tag, Attachment, List } from "@/lib/store";
 
 interface CardDetailsDialogProps {
   card: Card;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   listTitle: string;
+  boardMembers: Member[];
+  availableLists: List[];
   onUpdateCard: (cardId: string, updates: Partial<Card>) => void;
   onDeleteCard: (cardId: string) => void;
   onDuplicateCard: (cardId: string) => void;
+  onAddMember: (cardId: string, member: Member) => void;
+  onRemoveMember: (cardId: string, memberId: string) => void;
+  onAddTag: (cardId: string, tag: Tag) => void;
+  onRemoveTag: (cardId: string, tagId: string) => void;
+  onAddAttachment: (cardId: string, attachment: Attachment) => void;
+  onRemoveAttachment: (cardId: string, attachmentId: string) => void;
+  onMoveCard: (cardId: string, newListId: string) => void;
+  onArchiveCard: (cardId: string) => void;
 }
 
 export const CardDetailsDialog = ({
@@ -28,15 +42,24 @@ export const CardDetailsDialog = ({
   open,
   onOpenChange,
   listTitle,
+  boardMembers,
+  availableLists,
   onUpdateCard,
   onDeleteCard,
   onDuplicateCard,
+  onAddMember,
+  onRemoveMember,
+  onAddTag,
+  onRemoveTag,
+  onAddAttachment,
+  onRemoveAttachment,
+  onMoveCard,
+  onArchiveCard,
 }: CardDetailsDialogProps) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || "");
   const [newChecklistItem, setNewChecklistItem] = useState("");
-  const [comment, setComment] = useState("");
 
   const completedChecklist = card.checklist?.filter((item) => item.completed).length || 0;
   const totalChecklist = card.checklist?.length || 0;
@@ -135,41 +158,70 @@ export const CardDetailsDialog = ({
             </DialogHeader>
 
             {/* Labels, Members, Due Date */}
-            <div className="mt-6 flex flex-wrap gap-6">
+            <div className="mt-6 space-y-4">
+              {/* Members */}
+              {card.members && card.members.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold text-muted-foreground">Members</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs"
+                      onClick={() => {}}
+                    >
+                      <Users className="h-3 w-3 mr-1" />
+                      Manage
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {card.members.map((member) => (
+                      <div key={member.id} className="group relative">
+                        <Avatar className="h-8 w-8 border-2 border-background">
+                          <AvatarFallback className="text-sm">{member.avatar}</AvatarFallback>
+                        </Avatar>
+                        <button
+                          onClick={() => onRemoveMember(card.id, member.id)}
+                          className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Labels */}
               {card.tags && card.tags.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground mb-2">Labels</p>
                   <div className="flex flex-wrap gap-1">
                     {card.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="rounded px-3 py-1 text-sm font-medium text-white"
-                        style={{ backgroundColor: tag.color }}
-                      >
-                        {tag.name}
-                      </span>
+                      <div key={tag.id} className="group relative">
+                        <span
+                          className="rounded px-3 py-1 text-sm font-medium text-white"
+                          style={{ backgroundColor: tag.color }}
+                        >
+                          {tag.name}
+                        </span>
+                        <button
+                          onClick={() => onRemoveTag(card.id, tag.id)}
+                          className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {card.members && card.members.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">Members</p>
-                  <div className="flex -space-x-2">
-                    {card.members.map((member) => (
-                      <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
-                        <AvatarFallback className="text-sm">{member.avatar}</AvatarFallback>
-                      </Avatar>
-                    ))}
-                  </div>
-                </div>
-              )}
-
+              {/* Due Date */}
               {card.dueDate && (
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground mb-2">Due Date</p>
-                  <div className="flex items-center gap-2 rounded bg-muted px-3 py-1">
+                  <div className="flex items-center gap-2 rounded bg-muted px-3 py-1 w-fit">
                     <span className="text-sm">{card.dueDate}</span>
                   </div>
                 </div>
@@ -191,8 +243,22 @@ export const CardDetailsDialog = ({
               />
             </div>
 
+            {/* Attachments */}
+            <div className="mt-6">
+              <div className="flex items-center gap-3 mb-3">
+                <Paperclip className="h-5 w-5 text-muted-foreground" />
+                <h3 className="font-semibold">Attachments</h3>
+              </div>
+              <AttachmentUpload
+                cardId={card.id}
+                attachments={card.attachments || []}
+                onAttachmentAdded={(attachment) => onAddAttachment(card.id, attachment)}
+                onAttachmentRemoved={(attachmentId) => onRemoveAttachment(card.id, attachmentId)}
+              />
+            </div>
+
             {/* Checklist */}
-            {(card.checklist && card.checklist.length > 0) || newChecklistItem ? (
+            {(card.checklist && card.checklist.length > 0) || newChecklistItem !== "" ? (
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -268,23 +334,29 @@ export const CardDetailsDialog = ({
                 <h3 className="font-semibold">Comments</h3>
               </div>
               <div className="space-y-3">
+                {card.comments && card.comments.length > 0 && (
+                  <div className="space-y-3 mb-4">
+                    {card.comments.map((comment) => (
+                      <div key={comment.id} className="flex gap-3 p-3 bg-muted rounded-lg">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="text-xs">{comment.authorAvatar}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium">{comment.authorName}</span>
+                            <span className="text-xs text-muted-foreground">{comment.createdAt}</span>
+                          </div>
+                          <p className="text-sm">{comment.text}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <Textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
                   placeholder="Write a comment..."
                   className="min-h-[80px] resize-none"
                 />
-                <Button
-                  onClick={() => {
-                    if (comment.trim()) {
-                      // TODO: Implement comment functionality
-                      setComment("");
-                    }
-                  }}
-                  size="sm"
-                >
-                  Send
-                </Button>
+                <Button size="sm">Send</Button>
               </div>
             </div>
           </div>
@@ -293,32 +365,51 @@ export const CardDetailsDialog = ({
           <div className="w-48 border-l bg-muted/30 p-4">
             <div className="space-y-2">
               <p className="text-xs font-semibold text-muted-foreground mb-3">Add to card</p>
-              <Button variant="ghost" className="w-full justify-start gap-2" size="sm">
-                <Avatar className="h-4 w-4">
-                  <AvatarFallback className="text-[10px]">M</AvatarFallback>
-                </Avatar>
-                Members
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-2" size="sm">
-                <div className="h-4 w-4 rounded bg-primary" />
-                Labels
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-2" size="sm">
+              
+              <AddMemberDialog
+                availableMembers={boardMembers}
+                selectedMembers={card.members || []}
+                onAddMember={(member) => onAddMember(card.id, member)}
+              />
+
+              <AddLabelDialog
+                onAddLabel={(tag) => onAddTag(card.id, tag)}
+              />
+
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2"
+                size="sm"
+                onClick={() => {
+                  const updatedChecklist = [...(card.checklist || [])];
+                  if (updatedChecklist.length === 0) {
+                    updatedChecklist.push({
+                      id: `ch${Date.now()}`,
+                      text: "",
+                      completed: false,
+                    });
+                  }
+                  onUpdateCard(card.id, { checklist: updatedChecklist });
+                  setNewChecklistItem("");
+                }}
+              >
                 <CheckSquare className="h-4 w-4" />
                 Checklist
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-2" size="sm">
-                <Paperclip className="h-4 w-4" />
-                Attachment
               </Button>
 
               <Separator className="my-3" />
 
               <p className="text-xs font-semibold text-muted-foreground mb-3">Actions</p>
-              <Button variant="ghost" className="w-full justify-start gap-2" size="sm">
-                <MoveRight className="h-4 w-4" />
-                Move
-              </Button>
+              
+              <MoveCardDialog
+                currentListId={card.listId}
+                availableLists={availableLists}
+                onMove={(newListId) => {
+                  onMoveCard(card.id, newListId);
+                  onOpenChange(false);
+                }}
+              />
+
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-2"
@@ -331,10 +422,20 @@ export const CardDetailsDialog = ({
                 <Copy className="h-4 w-4" />
                 Copy
               </Button>
-              <Button variant="ghost" className="w-full justify-start gap-2" size="sm">
+
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2"
+                size="sm"
+                onClick={() => {
+                  onArchiveCard(card.id);
+                  onOpenChange(false);
+                }}
+              >
                 <Archive className="h-4 w-4" />
-                Archive
+                {card.archived ? "Unarchive" : "Archive"}
               </Button>
+
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-2 text-destructive hover:text-destructive"
